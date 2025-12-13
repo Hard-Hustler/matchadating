@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -64,7 +64,9 @@ const LOADING_MESSAGES = [
 
 const DatePlanPage = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'matching' | 'input' | 'loading' | 'results'>('input');
+  const [searchParams] = useSearchParams();
+  const showSavedView = searchParams.get('view') === 'saved';
+  const [step, setStep] = useState<'matching' | 'input' | 'loading' | 'results' | 'saved'>(showSavedView ? 'saved' : 'input');
   const [showMatchingAnimation, setShowMatchingAnimation] = useState(false);
   const [datePlans, setDatePlans] = useState<DatePlanResponse | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number>(0);
@@ -274,6 +276,123 @@ const DatePlanPage = () => {
         onGenerateImage={generateVenueImage}
         setVenueImages={setVenueImages}
       />
+    );
+  }
+
+  // Saved dates view
+  if (step === 'saved') {
+    const savedDates = JSON.parse(localStorage.getItem('matchaSavedDates') || '[]');
+    
+    return (
+      <div className="min-h-screen bg-gradient-hero py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="font-display text-4xl md:text-5xl font-bold mb-3">
+                Your <span className="text-gradient-love">Saved Dates</span>
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                All your planned adventures in one place
+              </p>
+            </div>
+            <Button 
+              onClick={() => {
+                setStep('input');
+                navigate('/date-plan');
+              }}
+              className="bg-gradient-romantic text-primary-foreground"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Plan New Date
+            </Button>
+          </div>
+
+          {savedDates.length === 0 ? (
+            <Card className="text-center py-16">
+              <CardContent>
+                <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-display text-2xl font-bold mb-2">No Saved Dates Yet</h3>
+                <p className="text-muted-foreground mb-6">
+                  When you plan dates with your matches, they'll appear here!
+                </p>
+                <Button 
+                  onClick={() => {
+                    setStep('input');
+                    navigate('/date-plan');
+                  }}
+                  className="bg-gradient-romantic text-primary-foreground"
+                >
+                  Plan Your First Date
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {savedDates.map((date: any, index: number) => (
+                <Card key={date.id} className="overflow-hidden border border-border/50 hover:border-primary/50 transition-colors">
+                  <div className="p-5">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary">
+                        {date.matchImage ? (
+                          <img 
+                            src={date.matchImage} 
+                            alt={date.matchName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-romantic flex items-center justify-center text-lg font-bold text-white">
+                            {date.matchName?.charAt(0) || '?'}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-display text-lg font-bold">Date with {date.matchName}</h3>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {date.city}
+                        </p>
+                      </div>
+                      <Badge className="bg-gradient-romantic text-primary-foreground">{date.planTheme}</Badge>
+                    </div>
+
+                    <div className="bg-muted/50 rounded-lg p-3 mb-4">
+                      <h4 className="font-semibold text-sm mb-2">{date.planTitle}</h4>
+                      <div className="space-y-1">
+                        {date.timeline?.slice(0, 2).map((item: any, i: number) => (
+                          <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Clock className="w-3 h-3" />
+                            <span>{item.time}</span>
+                            <span>—</span>
+                            <span className="truncate">{item.venue}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">
+                        Saved {new Date(date.savedAt).toLocaleDateString()}
+                      </span>
+                      <Button 
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          const updated = savedDates.filter((d: any) => d.id !== date.id);
+                          localStorage.setItem('matchaSavedDates', JSON.stringify(updated));
+                          setStep('saved'); // Force re-render
+                          toast.success('Date plan removed');
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     );
   }
 
