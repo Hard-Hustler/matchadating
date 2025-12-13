@@ -4,6 +4,7 @@ import { Sparkles, Calendar, Users, Play, ArrowRight, Instagram, Linkedin, Video
 import { useState, useEffect } from 'react';
 import AuthButton from '@/components/AuthButton';
 import coupleHero from '@/assets/couple-hero.jpg';
+import { motion } from 'framer-motion';
 
 const TAGLINES = [
   "Where Hearts Align",
@@ -39,30 +40,46 @@ const Index = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-10 flex items-center justify-between px-6 py-5 md:px-12">
+      <motion.nav 
+        className="relative z-10 flex items-center justify-between px-6 py-5 md:px-12"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div className="flex items-center gap-3">
-          <div className="relative group">
+          <motion.div 
+            className="relative group"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <div className="absolute -inset-1 bg-gradient-romantic rounded-2xl blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
             <div className="relative w-12 h-12 rounded-2xl bg-gradient-romantic flex items-center justify-center shadow-glow">
               <Heart className="w-6 h-6 text-primary-foreground" fill="currentColor" />
             </div>
-          </div>
+          </motion.div>
           <div>
             <span className="font-display text-2xl font-bold text-foreground tracking-tight">Matcha</span>
             <span className="block text-xs text-muted-foreground tracking-wide">Find Your Match</span>
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <motion.div 
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <AuthButton />
           <Link to="/profile">
-            <Button className="rounded-full bg-gradient-romantic text-primary-foreground hover:opacity-90 font-medium shadow-glow px-5">
-              Get Started
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button className="rounded-full bg-gradient-romantic text-primary-foreground hover:opacity-90 font-medium shadow-glow px-5">
+                Get Started
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </motion.div>
           </Link>
-        </div>
-      </nav>
+        </motion.div>
+      </motion.nav>
 
       {/* Hero Section */}
       <main className="relative z-10 container mx-auto px-6 pt-8 pb-24">
@@ -71,18 +88,39 @@ const Index = () => {
           <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[70vh]">
             {/* Left - Text Content */}
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-                <Sparkles className="w-4 h-4" />
+              <motion.div 
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <motion.div
+                  animate={{ rotate: [0, 360] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                >
+                  <Sparkles className="w-4 h-4" />
+                </motion.div>
                 AI-Powered Matching
-              </div>
+              </motion.div>
               
-              <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
+              <motion.h1 
+                className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+              >
                 <span className="text-foreground">Find</span>
                 <br />
-                <span className="text-gradient-love">True Love</span>
+                <motion.span 
+                  className="text-gradient-love"
+                  animate={{ backgroundPosition: ['0%', '100%', '0%'] }}
+                  transition={{ duration: 5, repeat: Infinity }}
+                >
+                  True Love
+                </motion.span>
                 <br />
                 <span className="text-foreground">Effortlessly</span>
-              </h1>
+              </motion.h1>
               
               <div className={`h-12 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                 <p className="text-xl md:text-2xl font-display font-medium text-muted-foreground">
@@ -90,81 +128,135 @@ const Index = () => {
                 </p>
               </div>
 
-              <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
+              <motion.p 
+                className="text-base text-muted-foreground max-w-lg leading-relaxed"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.6 }}
+              >
                 Connect your social profiles, reveal your authentic self through video, and let our AI find your perfect match. No endless swiping—just meaningful connections.
-              </p>
+              </motion.p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 pt-2"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+              >
                 <Link to="/profile">
-                  <Button size="lg" className="rounded-full px-8 py-6 text-base font-semibold bg-gradient-romantic text-primary-foreground hover:opacity-90 shadow-glow transition-all hover:scale-[1.02]">
-                    <Heart className="w-5 h-5 mr-2" fill="currentColor" />
-                    Start Matching
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button size="lg" className="rounded-full px-8 py-6 text-base font-semibold bg-gradient-romantic text-primary-foreground hover:opacity-90 shadow-glow transition-all">
+                      <Heart className="w-5 h-5 mr-2" fill="currentColor" />
+                      Start Matching
+                    </Button>
+                  </motion.div>
                 </Link>
-                <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-base font-medium border-2 border-border hover:bg-muted/50">
-                  <Play className="w-5 h-5 mr-2 text-primary" />
-                  How It Works
-                </Button>
-              </div>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                  <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-base font-medium border-2 border-border hover:bg-muted/50">
+                    <Play className="w-5 h-5 mr-2 text-primary" />
+                    How It Works
+                  </Button>
+                </motion.div>
+              </motion.div>
 
               {/* Social Proof */}
-              <div className="flex items-center gap-4 pt-6">
+              <motion.div 
+                className="flex items-center gap-4 pt-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
                 <div className="flex -space-x-3">
                   {[1, 2, 3, 4, 5].map((_, i) => (
-                    <div key={i} className={`w-10 h-10 rounded-full bg-gradient-to-br ${
-                      i % 3 === 0 ? 'from-rose-400 to-pink-500' :
-                      i % 3 === 1 ? 'from-violet-400 to-purple-500' :
-                      'from-amber-400 to-orange-500'
-                    } border-2 border-background shadow-sm`} />
+                    <motion.div 
+                      key={i} 
+                      className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                        i % 3 === 0 ? 'from-rose-400 to-pink-500' :
+                        i % 3 === 1 ? 'from-violet-400 to-purple-500' :
+                        'from-amber-400 to-orange-500'
+                      } border-2 border-background shadow-sm`}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.9 + i * 0.1 }}
+                    />
                   ))}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground">5,000+ couples matched</p>
                   <p className="text-sm text-muted-foreground">Join the community</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Right - Couple Image */}
-            <div className="relative hidden lg:block">
+            <motion.div 
+              className="relative hidden lg:block"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+            >
               <div className="relative w-full max-w-lg mx-auto">
                 {/* Main Image */}
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <motion.div 
+                  className="relative rounded-3xl overflow-hidden shadow-2xl"
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
                   <img 
                     src={coupleHero} 
                     alt="Romantic couple in love"
                     className="w-full h-auto object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-                </div>
+                </motion.div>
 
                 {/* Floating Match Card */}
-                <div className="absolute -bottom-6 -left-6 w-72 glass-card rounded-2xl shadow-xl p-5 transform -rotate-6 hover:rotate-0 transition-all duration-500 border border-primary/20">
+                <motion.div 
+                  className="absolute -bottom-6 -left-6 w-72 glass-card rounded-2xl shadow-xl p-5 border border-primary/20"
+                  initial={{ opacity: 0, x: -30, rotate: -10 }}
+                  animate={{ opacity: 1, x: 0, rotate: -6 }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                  whileHover={{ rotate: 0, scale: 1.05 }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-romantic flex items-center justify-center animate-heartbeat shadow-glow">
+                    <motion.div 
+                      className="w-14 h-14 rounded-xl bg-gradient-romantic flex items-center justify-center shadow-glow"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
                       <Heart className="w-7 h-7 text-primary-foreground" fill="currentColor" />
-                    </div>
+                    </motion.div>
                     <div>
                       <p className="font-bold text-lg">New Match Found</p>
                       <p className="text-sm text-muted-foreground">94% compatible</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Floating Date Plan Card */}
-                <div className="absolute -top-4 -right-6 w-64 glass-card rounded-2xl shadow-xl p-5 transform rotate-6 hover:rotate-0 transition-all duration-500 border border-secondary/20">
+                <motion.div 
+                  className="absolute -top-4 -right-6 w-64 glass-card rounded-2xl shadow-xl p-5 border border-secondary/20"
+                  initial={{ opacity: 0, x: 30, rotate: 10 }}
+                  animate={{ opacity: 1, x: 0, rotate: 6 }}
+                  transition={{ delay: 1, duration: 0.5 }}
+                  whileHover={{ rotate: 0, scale: 1.05 }}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-purple-600 flex items-center justify-center shadow-glow-purple">
+                    <motion.div 
+                      className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-purple-600 flex items-center justify-center shadow-glow-purple"
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    >
                       <Calendar className="w-6 h-6 text-secondary-foreground" />
-                    </div>
+                    </motion.div>
                     <div>
                       <p className="font-bold">Date Planned</p>
                       <p className="text-xs text-muted-foreground">Rooftop dinner at 8 PM</p>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Features Section */}
