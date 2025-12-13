@@ -184,11 +184,11 @@ const Profile = () => {
       <div className="max-w-2xl mx-auto mb-8">
         <div className="flex items-center gap-3 mb-4">
           <div className="relative">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-emerald-400 to-primary flex items-center justify-center">
-              <span className="text-xl font-bold text-white">抹</span>
+            <div className="w-10 h-10 rounded-xl bg-gradient-romantic flex items-center justify-center shadow-glow">
+              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
             </div>
           </div>
-          <span className="font-display text-xl font-bold">MATCHA</span>
+          <span className="font-display text-xl font-bold">Matcha</span>
         </div>
         
         {/* Progress */}
@@ -196,8 +196,8 @@ const Profile = () => {
           {[1, 2, 3].map(s => (
             <div 
               key={s}
-              className={`h-2 flex-1 rounded-full transition-colors ${
-                s <= step ? 'bg-primary' : 'bg-muted'
+              className={`h-2.5 flex-1 rounded-full transition-all ${
+                s <= step ? 'bg-gradient-romantic shadow-glow' : 'bg-muted'
               }`}
             />
           ))}
@@ -208,11 +208,11 @@ const Profile = () => {
         {/* Step 1: Basic Info + Social Links */}
         {step === 1 && (
           <>
-            <CardHeader className="bg-gradient-to-r from-primary/5 to-rose-500/5">
-              <CardTitle className="font-display text-2xl flex items-center gap-2">
-                <span className="text-3xl">🔗</span> Connect Your World
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/10">
+              <CardTitle className="font-display text-2xl flex items-center gap-3">
+                <span className="text-3xl">💕</span> Connect Your World
               </CardTitle>
-              <CardDescription>Link your socials and we'll understand you better than any questionnaire</CardDescription>
+              <CardDescription className="text-base">Link your socials and we'll understand you better than any questionnaire</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {/* Basic Info */}

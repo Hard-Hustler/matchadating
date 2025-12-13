@@ -57,17 +57,17 @@ const Matches = () => {
         </Button>
         
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <Heart className="w-4 h-4 text-primary-foreground" fill="currentColor" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+            <Heart className="w-5 h-5 text-primary-foreground animate-pulse" fill="currentColor" />
           </div>
-          <span className="font-display text-xl font-bold">MATCHA</span>
+          <span className="font-display text-2xl font-bold">Matcha</span>
         </div>
         
-        <h1 className="font-display text-3xl md:text-4xl font-bold mt-4 mb-2">
-          Your Top Matches
+        <h1 className="font-display text-4xl md:text-5xl font-bold mt-6 mb-3">
+          Your <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Perfect Matches</span> 💘
         </h1>
-        <p className="text-muted-foreground">
-          AI has analyzed compatibility across personality, values, interests, and emotional persona
+        <p className="text-lg text-muted-foreground">
+          AI has analyzed personality, values, interests, and emotional connection
         </p>
       </div>
 
@@ -112,24 +112,28 @@ const MatchCard = ({
   };
 
   return (
-    <Card className="overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-soft group">
-      <div className="p-6">
+    <Card className="overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all hover:shadow-xl group relative bg-card/80 backdrop-blur">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <div className="p-6 relative">
         {/* Header with avatar and score */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-display text-xl font-bold shadow-soft">
-              {getInitials(profile.name)}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-br from-primary to-secondary rounded-2xl blur opacity-50 group-hover:opacity-70 transition-opacity" />
+              <div className="relative w-18 h-18 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-display text-xl font-bold shadow-lg" style={{ width: '72px', height: '72px' }}>
+                {getInitials(profile.name)}
+              </div>
             </div>
             <div>
-              <h3 className="font-display text-xl font-semibold">{profile.name}, {profile.age}</h3>
-              <div className="flex items-center gap-1 text-muted-foreground text-sm">
-                <MapPin className="w-3 h-3" />
+              <h3 className="font-display text-2xl font-bold">{profile.name}, {profile.age}</h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground text-sm mt-1">
+                <MapPin className="w-4 h-4" />
                 {profile.location}
-                <span className="text-xs">• {distanceMiles.toFixed(1)} mi</span>
+                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{distanceMiles.toFixed(1)} mi</span>
               </div>
             </div>
           </div>
-          <div className={`px-3 py-2 rounded-xl font-display text-2xl font-bold ${getScoreColor(compatibilityScore)}`}>
+          <div className={`px-4 py-2 rounded-2xl font-display text-3xl font-bold ${getScoreColor(compatibilityScore)} shadow-lg`}>
             {compatibilityScore}%
           </div>
         </div>
@@ -187,15 +191,16 @@ const MatchCard = ({
 const LoadingState = () => (
   <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
     <div className="text-center">
-      <div className="relative w-32 h-32 mx-auto mb-8">
-        <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
-        <div className="absolute inset-4 rounded-full bg-primary/40 animate-ping" style={{ animationDelay: '0.2s' }} />
-        <div className="absolute inset-8 rounded-full bg-primary flex items-center justify-center">
-          <Sparkles className="w-8 h-8 text-primary-foreground animate-pulse" />
+      <div className="relative w-40 h-40 mx-auto mb-10">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary opacity-20 animate-ping" />
+        <div className="absolute inset-4 rounded-full bg-gradient-to-r from-primary to-secondary opacity-30 animate-ping" style={{ animationDelay: '0.2s' }} />
+        <div className="absolute inset-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl">
+          <Heart className="w-12 h-12 text-primary-foreground animate-pulse" fill="currentColor" />
         </div>
       </div>
-      <h2 className="font-display text-2xl font-bold mb-2">Finding Your Perfect Matches</h2>
-      <p className="text-muted-foreground">AI is analyzing personality, values, and compatibility...</p>
+      <h2 className="font-display text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Finding Your Perfect Matches</h2>
+      <p className="text-lg text-muted-foreground">AI is analyzing personality, values, and emotional compatibility...</p>
+      <p className="text-sm text-muted-foreground mt-2">✨ This is where magic happens</p>
     </div>
   </div>
 );
