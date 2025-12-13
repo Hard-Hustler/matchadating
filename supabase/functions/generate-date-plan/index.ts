@@ -124,47 +124,7 @@ BARS: ${JSON.stringify(nycVenues.bars)}
 ACTIVITIES: ${JSON.stringify(nycVenues.activities)}
 NEIGHBORHOODS: ${JSON.stringify(nycVenues.neighborhoods)}
 
-CRITICAL: You must respond with ONLY valid JSON, no markdown, no code blocks, just raw JSON. Use ONLY real venues from the lists above or other well-known NYC establishments.
-
-The JSON structure must be:
-{
-  "plans": [
-    {
-      "id": 1,
-      "title": "Creative plan name",
-      "theme": "One word theme like 'Adventure' or 'Romance'",
-      "timeline": [
-        {
-          "time": "7:00 PM",
-          "activity": "Activity name",
-          "venue": "Real venue name from the list above",
-          "address": "Actual NYC address",
-          "description": "Why this works for them",
-          "mapsQuery": "venue name NYC for google maps search"
-        }
-      ],
-      "whyItFits": "2-3 sentences explaining why this plan matches their preferences",
-      "backupPlan": "What to do if weather/vibe is off",
-      "exitStrategy": "A witty excuse to leave early if things go south",
-      "estimatedCost": "$50-100"
-    }
-  ],
-  "inviteMessages": [
-    {
-      "tone": "Smooth",
-      "message": "A ready-to-send invite text"
-    },
-    {
-      "tone": "Direct",
-      "message": "A ready-to-send invite text"
-    },
-    {
-      "tone": "Chaos",
-      "message": "A chaotic/funny ready-to-send invite text"
-    }
-  ],
-  "astrologyVerdict": "${data.useAstrology ? (roastMode ? 'A savage roast about their zodiac incompatibility' : 'An enthusiastic take on their cosmic chemistry') : null}"
-}`;
+Use ONLY real venues from the lists above or other well-known establishments. Be creative and match their preferences. Always call the generate_date_plans function with your response.`;
 
     const userPrompt = `Create 3 unique date plans for ${data.userName} and ${data.partnerName}.
 
@@ -180,10 +140,11 @@ DETAILS:
 - ${data.partnerName} hates: ${data.partnerHates || 'not specified'}
 - Special requests: ${data.lastWords || 'none'}
 
-Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activities with ONLY REAL venues that actually exist in ${data.city}. Include actual addresses. For NYC, use the venue database provided. Be creative, specific, and match their preferences.`;
+Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activities with ONLY REAL venues.`;
 
     console.log('Calling Lovable AI for date plan generation...');
 
+    // Use tool calling for structured output - more reliable than asking for JSON
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -196,6 +157,65 @@ Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activi
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
+        tools: [
+          {
+            type: "function",
+            function: {
+              name: "generate_date_plans",
+              description: "Generate date plans for a couple",
+              parameters: {
+                type: "object",
+                properties: {
+                  plans: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "number" },
+                        title: { type: "string", description: "Creative plan name" },
+                        theme: { type: "string", description: "One word theme like Adventure or Romance" },
+                        timeline: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              time: { type: "string" },
+                              activity: { type: "string" },
+                              venue: { type: "string", description: "Real venue name" },
+                              address: { type: "string", description: "Actual address" },
+                              description: { type: "string" },
+                              mapsQuery: { type: "string" }
+                            },
+                            required: ["time", "activity", "venue", "address", "description", "mapsQuery"]
+                          }
+                        },
+                        whyItFits: { type: "string" },
+                        backupPlan: { type: "string" },
+                        exitStrategy: { type: "string" },
+                        estimatedCost: { type: "string" }
+                      },
+                      required: ["id", "title", "theme", "timeline", "whyItFits", "backupPlan", "exitStrategy", "estimatedCost"]
+                    }
+                  },
+                  inviteMessages: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        tone: { type: "string" },
+                        message: { type: "string" }
+                      },
+                      required: ["tone", "message"]
+                    }
+                  },
+                  astrologyVerdict: { type: "string", description: "Zodiac compatibility verdict or null" }
+                },
+                required: ["plans", "inviteMessages"]
+              }
+            }
+          }
+        ],
+        tool_choice: { type: "function", function: { name: "generate_date_plans" } }
       }),
     });
 
@@ -219,28 +239,16 @@ Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activi
     }
 
     const aiResponse = await response.json();
-    const content = aiResponse.choices?.[0]?.message?.content;
-    
-    if (!content) {
-      throw new Error('No content in AI response');
-    }
-
     console.log('AI response received, parsing...');
     
-    // Clean the response - remove markdown code blocks if present
-    let cleanedContent = content.trim();
-    if (cleanedContent.startsWith('```json')) {
-      cleanedContent = cleanedContent.slice(7);
+    // Extract from tool call response
+    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+    if (!toolCall || toolCall.function.name !== 'generate_date_plans') {
+      console.error('No valid tool call in response:', JSON.stringify(aiResponse).slice(0, 500));
+      throw new Error('AI did not return structured date plan');
     }
-    if (cleanedContent.startsWith('```')) {
-      cleanedContent = cleanedContent.slice(3);
-    }
-    if (cleanedContent.endsWith('```')) {
-      cleanedContent = cleanedContent.slice(0, -3);
-    }
-    cleanedContent = cleanedContent.trim();
 
-    const datePlans = JSON.parse(cleanedContent);
+    const datePlans = JSON.parse(toolCall.function.arguments);
 
     return new Response(JSON.stringify(datePlans), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
