@@ -12,8 +12,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
+        sans: ['DM Sans', 'sans-serif'],
+        display: ['Playfair Display', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -28,8 +28,14 @@ export default {
         accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
         popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
         card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
-        matcha: { DEFAULT: "hsl(var(--matcha))", light: "hsl(var(--matcha-light))" },
-        rose: { DEFAULT: "hsl(var(--rose))", light: "hsl(var(--rose-light))" },
+        love: { 
+          pink: "hsl(var(--love-pink))", 
+          "pink-light": "hsl(var(--love-pink-light))",
+          purple: "hsl(var(--love-purple))",
+          "purple-light": "hsl(var(--love-purple-light))",
+          coral: "hsl(var(--love-coral))",
+          gold: "hsl(var(--love-gold))",
+        },
       },
       borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
       keyframes: {
