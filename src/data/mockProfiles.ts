@@ -1,3 +1,12 @@
+import sarahImg from '@/assets/profiles/sarah.jpg';
+import marcusImg from '@/assets/profiles/marcus.jpg';
+import emmaImg from '@/assets/profiles/emma.jpg';
+import alexImg from '@/assets/profiles/alex.jpg';
+import jamesImg from '@/assets/profiles/james.jpg';
+import priyaImg from '@/assets/profiles/priya.jpg';
+import davidImg from '@/assets/profiles/david.jpg';
+import lunaImg from '@/assets/profiles/luna.jpg';
+
 export interface Profile {
   id: string;
   name: string;
@@ -19,6 +28,7 @@ export interface Profile {
   sign: string;
   lookingFor?: string;
   avatar?: string;
+  profileImage?: string;
   essays: {
     aboutMe: string;
     lookingFor: string;
@@ -48,6 +58,7 @@ export const mockProfiles: Profile[] = [
     sign: "Libra ♎",
     lookingFor: "serious",
     avatar: "style2-none",
+    profileImage: sarahImg,
     essays: {
       aboutMe: "I believe in deep conversations over good food. Currently training for my first half-marathon while also perfecting my sourdough recipe.",
       lookingFor: "Someone authentic who values growth and isn't afraid to be vulnerable. Bonus points if you can make me laugh.",
@@ -75,6 +86,7 @@ export const mockProfiles: Profile[] = [
     sign: "Scorpio ♏",
     lookingFor: "serious",
     avatar: "style3-glasses",
+    profileImage: marcusImg,
     essays: {
       aboutMe: "I play saxophone in a local jazz band and code during the day. Balance is everything to me - work hard, play harder.",
       lookingFor: "Someone who appreciates both quiet nights in and spontaneous adventures. Must love live music.",
@@ -89,7 +101,7 @@ export const mockProfiles: Profile[] = [
     location: "Berkeley",
     sex: "female",
     orientation: "bisexual",
-    bio: "PhD student studying marine biology. When I'm not in the lab, I'm probably at the beach or a bookstore.",
+    bio: "PhD student studying marine biology. When I am not in the lab, I am probably at the beach or a bookstore.",
     interests: ["reading", "surfing", "science", "documentaries", "yoga"],
     job: "PhD Researcher",
     education: "graduate",
@@ -102,9 +114,10 @@ export const mockProfiles: Profile[] = [
     sign: "Pisces ♓",
     lookingFor: "casual",
     avatar: "style1-none",
+    profileImage: emmaImg,
     essays: {
-      aboutMe: "Fascinated by the ocean and everything in it. I can talk about marine ecosystems for hours, but I promise I'm fun at parties too.",
-      lookingFor: "An intellectually curious person who loves learning and isn't intimidated by ambition.",
+      aboutMe: "Fascinated by the ocean and everything in it. I can talk about marine ecosystems for hours, but I promise I am fun at parties too.",
+      lookingFor: "An intellectually curious person who loves learning and is not intimidated by ambition.",
       idealWeekend: "Early morning surf session, brunch with friends, afternoon reading in a sunny spot, evening documentary."
     }
   },
@@ -129,9 +142,10 @@ export const mockProfiles: Profile[] = [
     sign: "Aquarius ♒",
     lookingFor: "friends",
     avatar: "style4-earrings",
+    profileImage: alexImg,
     essays: {
       aboutMe: "I express myself through color and movement. Currently working on a community garden project in the Mission.",
-      lookingFor: "Someone who cares about making a difference and isn't afraid to dream big together.",
+      lookingFor: "Someone who cares about making a difference and is not afraid to dream big together.",
       idealWeekend: "Morning in my studio, afternoon tending the community garden, evening poetry reading or dance party."
     }
   },
@@ -156,8 +170,9 @@ export const mockProfiles: Profile[] = [
     sign: "Taurus ♉",
     lookingFor: "serious",
     avatar: "style5-none",
+    profileImage: jamesImg,
     essays: {
-      aboutMe: "I've cooked in kitchens from New York to Tokyo. Now I'm focused on sustainable, local cuisine.",
+      aboutMe: "I have cooked in kitchens from New York to Tokyo. Now I am focused on sustainable, local cuisine.",
       lookingFor: "Someone who appreciates a home-cooked meal and good conversation over wine.",
       idealWeekend: "Farmers market at dawn, testing new recipes, hosting a dinner party for friends."
     }
@@ -183,9 +198,10 @@ export const mockProfiles: Profile[] = [
     sign: "Aries ♈",
     lookingFor: "serious",
     avatar: "style6-headphones",
+    profileImage: priyaImg,
     essays: {
       aboutMe: "Built my first app at 22, still chasing that startup high. But I know how to disconnect - the dance floor is my therapy.",
-      lookingFor: "Someone ambitious who also knows how to have fun. Let's build empires and dance until midnight.",
+      lookingFor: "Someone ambitious who also knows how to have fun. Let us build empires and dance until midnight.",
       idealWeekend: "Morning workout, afternoon working on the next big thing, evening salsa dancing until late."
     }
   },
@@ -197,7 +213,7 @@ export const mockProfiles: Profile[] = [
     location: "Oakland",
     sex: "male",
     orientation: "straight",
-    bio: "Elementary school teacher with a passion for outdoor education. Kids say I'm the 'fun' teacher.",
+    bio: "Elementary school teacher with a passion for outdoor education. Kids say I am the fun teacher.",
     interests: ["education", "camping", "guitar", "board games", "hiking"],
     job: "Teacher",
     education: "graduate",
@@ -210,6 +226,7 @@ export const mockProfiles: Profile[] = [
     sign: "Cancer ♋",
     lookingFor: "serious",
     avatar: "style3-none",
+    profileImage: davidImg,
     essays: {
       aboutMe: "Nothing beats seeing a kid's face light up when they finally get it. I bring that same enthusiasm to everything.",
       lookingFor: "Someone kind, patient, and ready for adventures both big and small.",
@@ -237,9 +254,10 @@ export const mockProfiles: Profile[] = [
     sign: "Sagittarius ♐",
     lookingFor: "casual",
     avatar: "style1-earrings",
+    profileImage: lunaImg,
     essays: {
       aboutMe: "Every tattoo tells a story. I love helping people express themselves through permanent art.",
-      lookingFor: "Someone creative, a little weird, and who won't judge my extensive plant collection.",
+      lookingFor: "Someone creative, a little weird, and who will not judge my extensive plant collection.",
       idealWeekend: "Thrift store treasure hunting, repotting plants, sketching new designs while listening to old records."
     }
   }
