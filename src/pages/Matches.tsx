@@ -3,11 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
 import { generateMatches, MatchResult, MatchFactor } from '@/data/mockMatching';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
-import { AvatarDisplay } from '@/components/AvatarSelector';
 
 const LOADING_STEPS = [
   { text: "Scanning your vibe...", duration: 600 },
@@ -140,79 +139,83 @@ const MatchCard = ({
     return 'bg-muted text-muted-foreground';
   };
 
-  const getInitials = (name: string) => name.slice(0, 2).toUpperCase();
-  
-  const getPersonaBonusLabel = (bonus: number) => {
-    if (bonus >= 10) return { label: '🔥 Perfect Vibes', color: 'bg-gradient-to-r from-primary to-secondary text-primary-foreground' };
-    if (bonus >= 7) return { label: '✨ Great Match', color: 'bg-green-500 text-white' };
-    return { label: '💫 Compatible', color: 'bg-muted text-muted-foreground' };
+  const getRankBadge = (r: number) => {
+    if (r === 1) return { label: 'Top Match', color: 'bg-gradient-to-r from-amber-400 to-yellow-500' };
+    if (r === 2) return { label: '2nd Best', color: 'bg-gradient-to-r from-slate-300 to-slate-400' };
+    return { label: '3rd Pick', color: 'bg-gradient-to-r from-amber-600 to-orange-700' };
   };
 
-  const getRankEmoji = (r: number) => {
-    if (r === 1) return '🥇';
-    if (r === 2) return '🥈';
-    return '🥉';
-  };
+  const rankBadge = getRankBadge(rank);
 
   return (
-    <Card className="overflow-hidden border-2 border-transparent hover:border-primary/30 transition-all hover:shadow-xl group relative bg-card/80 backdrop-blur">
+    <Card className="overflow-hidden border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl group relative bg-card/90 backdrop-blur">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
       
-      {/* Rank badge */}
-      <div className="absolute top-3 left-3 text-2xl z-10">{getRankEmoji(rank)}</div>
-      
-      <div className="p-6 relative">
-        {/* Header with avatar and score */}
-        <div className="flex items-start justify-between mb-5 pt-2">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-br from-primary to-secondary rounded-2xl blur opacity-50 group-hover:opacity-70 transition-opacity" />
-              <AvatarDisplay 
-                avatar={profile.avatar} 
-                size="md"
-                className="relative"
-              />
-            </div>
-            <div>
-              <h3 className="font-display text-2xl font-bold">{profile.name}, {profile.age}</h3>
-              <div className="flex items-center gap-1.5 text-muted-foreground text-sm mt-1">
-                <MapPin className="w-4 h-4" />
-                {profile.location}
-                <span className="text-xs bg-muted px-2 py-0.5 rounded-full">{distanceMiles.toFixed(1)} mi</span>
-              </div>
-            </div>
+      {/* Profile Image */}
+      <div className="relative h-64 overflow-hidden">
+        {profile.profileImage ? (
+          <img 
+            src={profile.profileImage} 
+            alt={profile.name}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-romantic flex items-center justify-center">
+            <span className="text-6xl font-display font-bold text-primary-foreground/50">
+              {profile.name.charAt(0)}
+            </span>
           </div>
-          <div className={`px-4 py-2 rounded-2xl font-display text-3xl font-bold ${getScoreColor(compatibilityScore)} shadow-lg`}>
-            {compatibilityScore}%
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+        
+        {/* Rank Badge */}
+        <div className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white ${rankBadge.color}`}>
+          {rankBadge.label}
+        </div>
+        
+        {/* Score Badge */}
+        <div className={`absolute top-3 right-3 px-3 py-2 rounded-xl font-display text-2xl font-bold ${getScoreColor(compatibilityScore)} shadow-lg`}>
+          {compatibilityScore}%
+        </div>
+      </div>
+      
+      <div className="p-5 relative">
+        {/* Name and Info */}
+        <div className="mb-4">
+          <h3 className="font-display text-2xl font-bold">{profile.name}, {profile.age}</h3>
+          <div className="flex items-center gap-3 text-muted-foreground text-sm mt-1">
+            <span className="flex items-center gap-1">
+              <Briefcase className="w-3.5 h-3.5" />
+              {profile.job}
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" />
+              {distanceMiles.toFixed(1)} mi
+            </span>
           </div>
         </div>
 
-        {/* Bio */}
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-          {profile.bio}
-        </p>
-
-        {/* Persona Match Badge */}
-        {personaMatch && (
-          <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-primary/5">
-            <Users className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">{personaMatch.matchType}</span>
-            <Badge className={`text-xs ${getPersonaBonusLabel(personaMatch.bonus).color}`}>
-              {getPersonaBonusLabel(personaMatch.bonus).label}
-            </Badge>
+        {/* Why You Match - Prominent Reasoning Section */}
+        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-4 mb-4 border border-primary/20">
+          <div className="flex items-center gap-2 text-primary text-xs font-semibold mb-2">
+            <Sparkles className="w-4 h-4" />
+            Why You Match
           </div>
-        )}
-
-        {/* AI Reasoning */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-4 mb-4 border border-primary/10">
-          <div className="flex items-center gap-2 text-primary text-xs font-medium mb-2">
-            <Sparkles className="w-3 h-3" />
-            Why You'll Click
-          </div>
-          <p className="text-sm text-foreground/90">
+          <p className="text-sm text-foreground leading-relaxed">
             {reasoning}
           </p>
         </div>
+
+        {/* Persona Match Badge */}
+        {personaMatch && (
+          <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-muted/50 border border-border/50">
+            <Users className="w-4 h-4 text-secondary" />
+            <span className="text-sm font-medium">{personaMatch.matchType}</span>
+            <Badge variant="secondary" className="text-xs ml-auto">
+              +{personaMatch.bonus} chemistry
+            </Badge>
+          </div>
+        )}
 
         {/* Match Factors Breakdown */}
         <button 
@@ -220,7 +223,7 @@ const MatchCard = ({
           className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors mb-4 text-sm"
         >
           <span className="font-medium flex items-center gap-2">
-            📊 See Compatibility Breakdown
+            Compatibility Breakdown
           </span>
           {showFactors ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
         </button>
@@ -234,9 +237,9 @@ const MatchCard = ({
         )}
 
         {/* Common Values */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-1.5 mb-4">
           {commonValues.map(value => (
-            <Badge key={value} variant="secondary" className="bg-accent/50 text-accent-foreground capitalize">
+            <Badge key={value} variant="outline" className="text-xs capitalize">
               {value}
             </Badge>
           ))}
