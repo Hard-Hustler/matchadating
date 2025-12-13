@@ -1,6 +1,14 @@
 import { Profile, mockProfiles } from './mockProfiles';
 import { PersonaResult } from '@/components/VideoEmotionCapture';
 
+export interface MatchFactor {
+  name: string;
+  score: number;
+  maxScore: number;
+  icon: string;
+  description: string;
+}
+
 export interface MatchResult {
   profile: Profile;
   compatibilityScore: number;
@@ -11,6 +19,7 @@ export interface MatchResult {
     matchType: string;
     bonus: number;
   };
+  matchFactors: MatchFactor[];
 }
 
 export interface DatePlan {
@@ -64,31 +73,31 @@ const mockPersonasForProfiles: Record<string, PersonaResult['personaType']> = {
   '8': 'Romantic',
 };
 
-const compatibilityReasons = [
-  "Both value deep, meaningful conversations and share a passion for personal growth. Your communication styles complement each other beautifully.",
-  "Shared love for outdoor adventures and healthy living creates a strong foundation. Both prioritize work-life balance and authenticity.",
-  "Creative spirits who appreciate art and self-expression. Your shared interests in culture and community would spark endless conversations.",
-  "Both driven and ambitious while knowing how to unwind. Your energies would balance and inspire each other.",
-  "Intellectual curiosity runs deep in both of you. Shared values around learning and growth would keep the spark alive.",
-  "Kindness and empathy are core to both of you. Your caring natures would create a supportive, nurturing relationship.",
-  "Adventure seekers at heart with appreciation for quiet moments. You'd push each other to grow while providing comfort.",
-  "Both passionate about making a difference in the world. Your shared values would create a powerful partnership."
+const funnyReasonings = [
+  "You both probably argue about the best pizza toppings and we're here for it 🍕",
+  "Your Netflix queues probably have suspicious overlap. Coincidence? We think not! 📺",
+  "Two people who actually reply to texts within 24 hours?! Rare breed alert! 💬",
+  "You both have that 'organized chaos' energy and honestly, it's adorable 🌪️",
+  "Compatible sleep schedules detected! No 'Why are you still up?' texts needed 😴",
+  "Both of you would rather stay in with a good book than deal with crowded bars 📚",
+  "You share that 'let's be spontaneous but also have a backup plan' vibe ✨",
+  "Two coffee addicts? The café dates will be legendary ☕",
 ];
 
 const personaReasonings: Record<string, string> = {
-  'Adventurer-Adventurer': "Two adventurous spirits who'll never run out of exciting experiences to share!",
-  'Adventurer-Creative': "Your spontaneity combined with their creativity makes for an inspiring, never-boring connection.",
-  'Adventurer-Social Butterfly': "Together you'll have the most exciting social life and create unforgettable memories.",
-  'Intellectual-Intellectual': "Deep conversations and shared curiosity will keep you both mentally stimulated for years.",
-  'Intellectual-Creative': "Your analytical mind and their creative vision complement each other perfectly.",
-  'Intellectual-Romantic': "Your thoughtful nature meets their emotional depth for a profoundly connected relationship.",
-  'Social Butterfly-Social Butterfly': "The life of every party together - your social energies amplify each other!",
-  'Social Butterfly-Creative': "Their artistic flair and your social grace make you the ultimate power couple.",
-  'Homebody-Homebody': "Cozy nights in, meaningful conversations, and building a beautiful life together at home.",
-  'Homebody-Romantic': "Your love of comfort meets their romantic nature for the coziest, most loving relationship.",
-  'Creative-Creative': "Two artistic souls who'll inspire each other endlessly and create something beautiful together.",
-  'Creative-Romantic': "Art and love intertwined - your creative expressions of love will be legendary.",
-  'Romantic-Romantic': "A love story waiting to be written - you both speak the language of the heart.",
+  'Adventurer-Adventurer': "Two adventurous spirits who'll never run out of exciting experiences to share! Pack your bags! 🎒",
+  'Adventurer-Creative': "Your spontaneity + their creativity = Instagram gold (and actual fun) 🎨",
+  'Adventurer-Social Butterfly': "Together you'll be the couple everyone wants to hang with. Main character energy! 🦋",
+  'Intellectual-Intellectual': "Deep 3AM conversations about the meaning of life? Sign us up! 🧠",
+  'Intellectual-Creative': "Their art + your analysis = pretentious museum dates done RIGHT 🖼️",
+  'Intellectual-Romantic': "Poetry readings and stargazing? You two are disgustingly perfect 💫",
+  'Social Butterfly-Social Butterfly': "Your combined friend groups could populate a small country 🌍",
+  'Social Butterfly-Creative': "They make the art, you find the audience. Power couple vibes! 🎭",
+  'Homebody-Homebody': "Cozy movie marathons in matching PJs. Living the dream! 🛋️",
+  'Homebody-Romantic': "Candlelit dinners AT HOME? Yes, this is peak romance 🕯️",
+  'Creative-Creative': "The Pinterest board for this couple would crash servers 📌",
+  'Creative-Romantic': "Love letters, handmade gifts, spontaneous serenades. We're swooning! 💌",
+  'Romantic-Romantic': "This is the rom-com Netflix wishes they could write 💕",
 };
 
 const commonValueSets = [
@@ -117,45 +126,114 @@ export const generateMatches = (
   });
 
   const shuffled = [...availableProfiles].sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, Math.min(count + 2, shuffled.length)); // Get extra for sorting
+  const selected = shuffled.slice(0, Math.min(count + 2, shuffled.length));
 
   const results = selected.map((profile, index) => {
-    let baseScore = 70 + Math.random() * 15;
+    const matchFactors: MatchFactor[] = [];
     
-    // Interest bonus
-    const interestBonus = userProfile.interests?.some(i => 
-      profile.interests.some(pi => pi.toLowerCase().includes(i.toLowerCase()))
-    ) ? 5 : 0;
-    
-    // Location bonus
-    const locationBonus = profile.location === userProfile.location ? 3 : 0;
-    
-    // PERSONA MATCHING BONUS
+    // 1. Interest Overlap Score (max 25 points)
+    const sharedInterests = userProfile.interests?.filter(i => 
+      profile.interests.some(pi => pi.toLowerCase().includes(i.toLowerCase().replace(/[^\w\s]/g, '')))
+    ) || [];
+    const interestScore = Math.min(25, sharedInterests.length * 5 + Math.floor(Math.random() * 10));
+    matchFactors.push({
+      name: "Shared Interests",
+      score: interestScore,
+      maxScore: 25,
+      icon: "🎯",
+      description: sharedInterests.length > 0 
+        ? `You both vibe with: ${sharedInterests.slice(0, 3).join(", ")}`
+        : "Different interests = never boring conversations!"
+    });
+
+    // 2. Location Compatibility (max 15 points)
+    const distance = getDistance(userProfile.location || "San Francisco", profile.location);
+    const locationScore = distance < 5 ? 15 : distance < 15 ? 12 : distance < 30 ? 8 : 5;
+    matchFactors.push({
+      name: "Location",
+      score: locationScore,
+      maxScore: 15,
+      icon: "📍",
+      description: distance < 5 
+        ? "Practically neighbors! Spontaneous dates possible" 
+        : distance < 15 
+        ? "Close enough for weeknight hangouts"
+        : "Worth the commute for love!"
+    });
+
+    // 3. Emotional/Persona Compatibility (max 20 points)
+    let personaScore = 10;
     let personaMatch: { matchType: string; bonus: number } | undefined;
     
     if (userProfile.persona) {
       const userPersona = userProfile.persona.personaType;
       const matchPersona = mockPersonasForProfiles[profile.id] || 'Creative';
-      
       const compatiblePersonas = personaCompatibility[userPersona] || [];
       
       if (matchPersona === userPersona) {
-        // Same persona - high compatibility
+        personaScore = 20;
         personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 12 };
       } else if (compatiblePersonas.includes(matchPersona)) {
-        // Compatible persona
+        personaScore = 16;
         personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 8 };
       } else {
-        // Less compatible but could work
+        personaScore = 10;
         personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 3 };
       }
     }
+    matchFactors.push({
+      name: "Emotional Vibe",
+      score: personaScore,
+      maxScore: 20,
+      icon: "💫",
+      description: userProfile.persona 
+        ? `Your ${userProfile.persona.personaType} energy meets their vibe perfectly`
+        : "Complete video analysis for deeper matching!"
+    });
+
+    // 4. Communication Style (max 15 points) - Simulated
+    const commScore = 10 + Math.floor(Math.random() * 6);
+    matchFactors.push({
+      name: "Communication Style",
+      score: commScore,
+      maxScore: 15,
+      icon: "💬",
+      description: commScore > 12 
+        ? "You both appreciate honest, open conversations"
+        : "Different styles can complement each other!"
+    });
+
+    // 5. Lifestyle Alignment (max 15 points)
+    const lifestyleScore = 8 + Math.floor(Math.random() * 8);
+    matchFactors.push({
+      name: "Lifestyle",
+      score: lifestyleScore,
+      maxScore: 15,
+      icon: "🌟",
+      description: lifestyleScore > 12 
+        ? "Work-life balance goals align beautifully"
+        : "Enough overlap to sync, enough difference to grow"
+    });
+
+    // 6. Humor Compatibility (max 10 points) - Because laughing together matters!
+    const humorScore = 6 + Math.floor(Math.random() * 5);
+    matchFactors.push({
+      name: "Humor Match",
+      score: humorScore,
+      maxScore: 10,
+      icon: "😂",
+      description: humorScore > 8 
+        ? "You'll laugh at the same stupid memes"
+        : "They'll introduce you to new jokes!"
+    });
+
+    // Calculate total score
+    const totalScore = matchFactors.reduce((acc, f) => acc + f.score, 0);
+    const maxPossible = matchFactors.reduce((acc, f) => acc + f.maxScore, 0);
+    const compatibilityScore = Math.min(99, Math.round((totalScore / maxPossible) * 100));
     
-    const personaBonus = personaMatch?.bonus || 0;
-    const score = Math.min(99, Math.round(baseScore + interestBonus + locationBonus + personaBonus));
-    
-    // Generate persona-aware reasoning
-    let reasoning = compatibilityReasons[index % compatibilityReasons.length];
+    // Generate reasoning
+    let reasoning = funnyReasonings[index % funnyReasonings.length];
     
     if (personaMatch && userProfile.persona) {
       const userPersona = userProfile.persona.personaType;
@@ -165,17 +243,18 @@ export const generateMatches = (
       
       const personaReason = personaReasonings[personaKey] || personaReasonings[reverseKey];
       if (personaReason) {
-        reasoning = personaReason + " " + reasoning;
+        reasoning = personaReason;
       }
     }
     
     return {
       profile,
-      compatibilityScore: score,
+      compatibilityScore,
       reasoning,
       commonValues: commonValueSets[index % commonValueSets.length],
-      distanceMiles: getDistance(userProfile.location || "San Francisco", profile.location),
+      distanceMiles: distance,
       personaMatch,
+      matchFactors,
     };
   })
   .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
@@ -187,57 +266,56 @@ export const generateMatches = (
 export const generateDatePlan = (user: Partial<Profile> & { persona?: PersonaResult }, match: Profile): DatePlan => {
   const location = user.location || match.location;
   
-  // Persona-specific restaurant suggestions
   const restaurants = [
-    { name: "Café Matcha", cuisine: "Japanese Fusion", vibe: "Cozy, modern, conversation-friendly" },
-    { name: "The Garden Table", cuisine: "Farm-to-Table", vibe: "Romantic, intimate, locally-sourced" },
-    { name: "Luna's Kitchen", cuisine: "Mediterranean", vibe: "Warm, lively, perfect for sharing plates" },
+    { name: "The Blushing Bean", cuisine: "Coffee & Brunch", vibe: "Cozy, artsy, conversation-friendly" },
+    { name: "Starlight Terrace", cuisine: "Rooftop Mediterranean", vibe: "Romantic, city views, perfect lighting" },
+    { name: "Luna's Kitchen", cuisine: "Italian Fusion", vibe: "Warm, lively, perfect for sharing plates" },
     { name: "Ember & Oak", cuisine: "Modern American", vibe: "Sophisticated, relaxed, great wine list" }
   ];
 
   const activities = [
-    { time: "6:00 PM", activity: "Meet for artisan coffee or tea", location: "Blue Bottle Coffee", icon: "coffee" },
-    { time: "6:30 PM", activity: "Stroll through the local art gallery", location: "SFMOMA Gallery Walk", icon: "palette" },
-    { time: "7:30 PM", activity: "Dinner with great conversation", location: restaurants[0].name, icon: "utensils" },
-    { time: "9:00 PM", activity: "Evening walk through the park", location: "Dolores Park", icon: "trees" },
-    { time: "9:30 PM", activity: "Optional: Dessert if the date is going well", location: "Bi-Rite Creamery", icon: "ice-cream" }
+    { time: "6:00 PM", activity: "Meet for artisan coffee (liquid courage)", location: "The Blushing Bean", icon: "coffee" },
+    { time: "6:30 PM", activity: "Stroll through the local art gallery", location: "Local Gallery Walk", icon: "palette" },
+    { time: "7:30 PM", activity: "Dinner + deep conversations", location: restaurants[0].name, icon: "utensils" },
+    { time: "9:00 PM", activity: "Evening walk (classic move, always works)", location: "Waterfront Path", icon: "trees" },
+    { time: "9:30 PM", activity: "Optional dessert (if sparks are flying!)", location: "Sweet Endings Café", icon: "ice-cream" }
   ];
 
   const sharedInterest = user.interests?.find(i => 
-    match.interests.some(mi => mi.toLowerCase().includes(i.toLowerCase()))
+    match.interests.some(mi => mi.toLowerCase().includes(i.toLowerCase().replace(/[^\w\s]/g, '')))
   ) || match.interests[0];
 
-  // Add persona-aware tips if user has a persona
   const baseTips = [
-    `${match.name} values authenticity, so be genuine rather than trying to impress`,
-    `They mentioned ${match.interests[0]} - showing interest in this could spark great conversation`,
-    `Listen actively - their profile suggests communication is important to them`,
+    `Pro tip: ${match.name} probably hates small talk. Go deep or go home! 💭`,
+    `They seem into ${match.interests[0]} - ask about it and watch them light up ✨`,
+    "Put your phone on silent. Nothing kills vibes faster than notification sounds 📵",
+    "Nervous? Good! It means you care. Deep breaths, you got this 💪",
   ];
 
   if (user.persona) {
     const personaTips: Record<string, string> = {
-      'Adventurer': 'Share your adventurous stories - your enthusiasm is contagious!',
-      'Intellectual': 'Your thoughtful questions will impress - ask about their passions.',
-      'Social Butterfly': 'Your natural warmth will shine - just be your charming self!',
-      'Homebody': 'Suggest a cozy follow-up activity - they might love that idea.',
-      'Creative': 'Show your creative side - maybe sketch something for them!',
-      'Romantic': 'Small romantic gestures go a long way with your personality.',
+      'Adventurer': "Suggest something spontaneous for date #2 - they'll love your energy! 🎒",
+      'Intellectual': "Your thoughtful questions will impress - just don't turn it into an interview 😂",
+      'Social Butterfly': "Your natural warmth is your superpower. Just be you! 🦋",
+      'Homebody': "Mention your cozy hobbies - they might be a homebody too! 🏠",
+      'Creative': "Show your creative side - maybe sketch something for them! 🎨",
+      'Romantic': "Small gestures go a long way - a compliment, a small gift, etc. 💐",
     };
-    baseTips.unshift(personaTips[user.persona.personaType] || 'Be yourself - your persona is perfect for this match!');
+    baseTips.unshift(personaTips[user.persona.personaType] || "Be yourself - your vibe is perfect for this match!");
   }
 
   return {
     matchName: match.name,
     restaurant: {
       ...restaurants[Math.floor(Math.random() * restaurants.length)],
-      location: `${location === "San Francisco" ? "Mission District" : "Downtown"}, ${location}`
+      location: `${location === "San Francisco" ? "Hayes Valley" : "Downtown"}, ${location}`
     },
     itinerary: activities,
     conversationStarters: [
-      `I noticed you're into ${sharedInterest} - what got you started with that?`,
-      `Your profile mentioned ${match.essays.lookingFor.split(' ').slice(0, 3).join(' ')}... - that really resonated with me because...`,
-      `If you could travel anywhere next month, where would you go and why?`,
-      `What's the most spontaneous thing you've done recently?`
+      `"So I noticed you're into ${sharedInterest} - what's the story there?"`,
+      `"What's something you're weirdly passionate about that surprises people?"`,
+      `"If you could teleport anywhere right now for dinner, where would we go?"`,
+      `"What's your hot take that would get you canceled on Twitter?" (risky but fun 😈)`
     ],
     tips: baseTips
   };
