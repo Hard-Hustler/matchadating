@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, Calendar, Users, Play, ArrowRight, Instagram, Linkedin, Video, Heart, Star, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import AuthButton from '@/components/AuthButton';
+import coupleHero from '@/assets/couple-hero.jpg';
 
 const TAGLINES = [
   "Where Hearts Align",
@@ -124,95 +125,41 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Right - Creative Visual */}
+            {/* Right - Couple Image */}
             <div className="relative hidden lg:block">
-              <div className="relative w-full aspect-square max-w-lg mx-auto">
-                {/* Main Card */}
-                <div className="absolute inset-0 glass-card rounded-3xl shadow-2xl p-8 transform rotate-2 hover:rotate-0 transition-all duration-500">
-                  <div className="h-full flex flex-col">
-                    {/* Profile Preview */}
-                    <div className="flex items-center gap-5 mb-8">
-                      <div className="w-24 h-24 rounded-2xl bg-gradient-romantic flex items-center justify-center text-5xl shadow-glow">
-                        👤
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-display text-2xl font-bold">Your Profile</h3>
-                        <p className="text-muted-foreground">AI-Enhanced Match</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex">
-                            {[1,2,3,4,5].map(i => (
-                              <Star key={i} className="w-4 h-4 text-love-gold" fill="currentColor" />
-                            ))}
-                          </div>
-                          <span className="text-sm text-love-gold font-semibold">Premium</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Social Integration Preview */}
-                    <div className="space-y-4 flex-1">
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-pink-500/10 to-purple-500/10 border border-pink-500/20">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center">
-                          <Instagram className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-semibold">Instagram Connected</span>
-                          <p className="text-xs text-muted-foreground">127 interests discovered</p>
-                        </div>
-                        <span className="text-xs text-primary font-semibold">✓</span>
-                      </div>
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center">
-                          <Linkedin className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-semibold">LinkedIn Connected</span>
-                          <p className="text-xs text-muted-foreground">Career path analyzed</p>
-                        </div>
-                        <span className="text-xs text-primary font-semibold">✓</span>
-                      </div>
-                      <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-romantic flex items-center justify-center">
-                          <Video className="w-5 h-5 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="font-semibold">Video Persona</span>
-                          <p className="text-xs text-muted-foreground">Romantic Soul detected</p>
-                        </div>
-                        <span className="text-xs text-primary font-semibold">✓</span>
-                      </div>
-                    </div>
-
-                    {/* Match Score */}
-                    <div className="mt-6 p-4 rounded-2xl bg-gradient-romantic/10 border border-primary/20 text-center">
-                      <p className="text-sm text-muted-foreground mb-1">Compatibility Score</p>
-                      <p className="font-display text-4xl font-bold text-gradient-love">98%</p>
-                    </div>
-                  </div>
+              <div className="relative w-full max-w-lg mx-auto">
+                {/* Main Image */}
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                  <img 
+                    src={coupleHero} 
+                    alt="Romantic couple in love"
+                    className="w-full h-auto object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
                 </div>
 
                 {/* Floating Match Card */}
-                <div className="absolute -bottom-6 -left-6 w-72 glass-card rounded-2xl shadow-xl p-5 transform -rotate-6 hover:rotate-0 transition-all duration-500 border-2 border-primary/20">
+                <div className="absolute -bottom-6 -left-6 w-72 glass-card rounded-2xl shadow-xl p-5 transform -rotate-6 hover:rotate-0 transition-all duration-500 border border-primary/20">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-romantic flex items-center justify-center text-2xl animate-heartbeat shadow-glow">
-                      💕
+                    <div className="w-14 h-14 rounded-xl bg-gradient-romantic flex items-center justify-center animate-heartbeat shadow-glow">
+                      <Heart className="w-7 h-7 text-primary-foreground" fill="currentColor" />
                     </div>
                     <div>
-                      <p className="font-bold text-lg">New Match Found!</p>
-                      <p className="text-sm text-muted-foreground">94% compatible • 2 mi away</p>
+                      <p className="font-bold text-lg">New Match Found</p>
+                      <p className="text-sm text-muted-foreground">94% compatible</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Floating Date Plan Card */}
-                <div className="absolute -top-4 -right-6 w-64 glass-card rounded-2xl shadow-xl p-5 transform rotate-6 hover:rotate-0 transition-all duration-500 border-2 border-secondary/20">
+                <div className="absolute -top-4 -right-6 w-64 glass-card rounded-2xl shadow-xl p-5 transform rotate-6 hover:rotate-0 transition-all duration-500 border border-secondary/20">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-secondary to-purple-600 flex items-center justify-center shadow-glow-purple">
-                      <Calendar className="w-6 h-6 text-white" />
+                      <Calendar className="w-6 h-6 text-secondary-foreground" />
                     </div>
                     <div>
-                      <p className="font-bold">Date Planned!</p>
-                      <p className="text-xs text-muted-foreground">Rooftop dinner • Tonight 8 PM</p>
+                      <p className="font-bold">Date Planned</p>
+                      <p className="text-xs text-muted-foreground">Rooftop dinner at 8 PM</p>
                     </div>
                   </div>
                 </div>
@@ -236,21 +183,21 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-10">
               <StepCard 
                 step={1}
-                icon={<div className="text-5xl">🔗</div>}
+                icon={<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center"><Instagram className="w-6 h-6 text-primary-foreground" /></div>}
                 title="Connect Your World"
                 description="Link Instagram or LinkedIn. Our AI discovers your true interests, lifestyle, and personality automatically."
                 gradient="from-pink-500 to-rose-600"
               />
               <StepCard 
                 step={2}
-                icon={<div className="text-5xl">🎬</div>}
+                icon={<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center"><Video className="w-6 h-6 text-secondary-foreground" /></div>}
                 title="Show Your Authentic Self"
                 description="A quick video reveals your emotional persona through advanced facial expression AI analysis."
                 gradient="from-purple-500 to-violet-600"
               />
               <StepCard 
                 step={3}
-                icon={<div className="text-5xl">💘</div>}
+                icon={<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center"><Heart className="w-6 h-6 text-primary-foreground" fill="currentColor" /></div>}
                 title="Meet Your Match"
                 description="AI finds your top compatible matches and even plans the perfect first date for you both."
                 gradient="from-rose-500 to-pink-600"
@@ -275,13 +222,13 @@ const Index = () => {
                   </p>
                   <div className="grid grid-cols-2 gap-5">
                     {[
-                      { emoji: '💫', type: 'The Dreamer', desc: 'Romantic & imaginative', color: 'from-pink-500/20 to-rose-500/20' },
-                      { emoji: '🔥', type: 'The Passionate', desc: 'Intense & driven', color: 'from-orange-500/20 to-red-500/20' },
-                      { emoji: '🦋', type: 'The Free Spirit', desc: 'Adventurous soul', color: 'from-purple-500/20 to-violet-500/20' },
-                      { emoji: '💎', type: 'The Steady Heart', desc: 'Loyal & dependable', color: 'from-blue-500/20 to-cyan-500/20' },
+                      { icon: <Star className="w-6 h-6" />, type: 'The Dreamer', desc: 'Romantic & imaginative', color: 'from-pink-500/20 to-rose-500/20' },
+                      { icon: <Zap className="w-6 h-6" />, type: 'The Passionate', desc: 'Intense & driven', color: 'from-orange-500/20 to-red-500/20' },
+                      { icon: <Sparkles className="w-6 h-6" />, type: 'The Free Spirit', desc: 'Adventurous soul', color: 'from-purple-500/20 to-violet-500/20' },
+                      { icon: <Heart className="w-6 h-6" />, type: 'The Steady Heart', desc: 'Loyal & dependable', color: 'from-blue-500/20 to-cyan-500/20' },
                     ].map(persona => (
-                      <div key={persona.type} className={`p-5 rounded-2xl bg-gradient-to-br ${persona.color} border border-primary/10 hover:border-primary/30 transition-all hover:scale-105 cursor-pointer`}>
-                        <span className="text-3xl">{persona.emoji}</span>
+                      <div key={persona.type} className={`p-5 rounded-2xl bg-gradient-to-br ${persona.color} border border-border hover:border-primary/30 transition-all hover:scale-105 cursor-pointer`}>
+                        <span className="text-primary">{persona.icon}</span>
                         <p className="font-bold mt-3">{persona.type}</p>
                         <p className="text-sm text-muted-foreground">{persona.desc}</p>
                       </div>
@@ -359,7 +306,7 @@ const Index = () => {
             <Heart className="w-6 h-6 text-primary" fill="currentColor" />
             <span className="font-display text-xl font-bold">Matcha</span>
           </div>
-          <p className="text-muted-foreground">Made with 💕 for the AI Dating Hackathon</p>
+          <p className="text-muted-foreground">Made with care for the AI Dating Hackathon</p>
         </div>
       </footer>
     </div>
