@@ -7,14 +7,15 @@ import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users, ChevronDown, Chevr
 import { generateMatches, MatchResult, MatchFactor } from '@/data/mockMatching';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
+import { AvatarDisplay } from '@/components/AvatarSelector';
 
 const LOADING_STEPS = [
-  { text: "Scanning your vibe... 🔮", duration: 600 },
-  { text: "Analyzing 10,000+ potential matches... 👀", duration: 600 },
-  { text: "Calculating chemistry levels... ⚗️", duration: 500 },
-  { text: "Checking humor compatibility... 😂", duration: 500 },
-  { text: "Consulting the love algorithm... 💕", duration: 400 },
-  { text: "Found some cuties! Finalizing... ✨", duration: 400 },
+  { text: "Scanning your vibe...", duration: 600 },
+  { text: "Analyzing 10,000+ potential matches...", duration: 600 },
+  { text: "Calculating chemistry levels...", duration: 500 },
+  { text: "Checking humor compatibility...", duration: 500 },
+  { text: "Consulting the love algorithm...", duration: 400 },
+  { text: "Found some great matches! Finalizing...", duration: 400 },
 ];
 
 const Matches = () => {
@@ -75,7 +76,7 @@ const Matches = () => {
         </div>
         
         <h1 className="font-display text-4xl md:text-5xl font-bold mt-6 mb-3">
-          Your <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Perfect Matches</span> 💘
+          Your <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Perfect Matches</span>
         </h1>
         <p className="text-lg text-muted-foreground">
           We've crunched the numbers, analyzed the vibes, and found your top picks! 
@@ -166,9 +167,11 @@ const MatchCard = ({
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="absolute -inset-1 bg-gradient-to-br from-primary to-secondary rounded-2xl blur opacity-50 group-hover:opacity-70 transition-opacity" />
-              <div className="relative w-18 h-18 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-display text-xl font-bold shadow-lg" style={{ width: '72px', height: '72px' }}>
-                {getInitials(profile.name)}
-              </div>
+              <AvatarDisplay 
+                avatar={profile.avatar} 
+                size="md"
+                className="relative"
+              />
             </div>
             <div>
               <h3 className="font-display text-2xl font-bold">{profile.name}, {profile.age}</h3>
@@ -245,7 +248,7 @@ const MatchCard = ({
           onClick={onPlanDate}
         >
           <Calendar className="w-4 h-4 mr-2" />
-          Plan a Date 💕
+          Plan a Date
         </Button>
       </div>
     </Card>
