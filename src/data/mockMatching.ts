@@ -20,6 +20,13 @@ export interface MatchResult {
     bonus: number;
   };
   matchFactors: MatchFactor[];
+  zodiacCompatibility?: {
+    userSign: string;
+    matchSign: string;
+    compatibility: 'high' | 'medium' | 'low';
+    prediction: string;
+    loveAdvice: string;
+  };
 }
 
 export interface DatePlan {
@@ -111,8 +118,98 @@ const commonValueSets = [
   ["innovation", "purpose", "fun"]
 ];
 
+// Zodiac compatibility matrix
+const zodiacCompatibility: Record<string, { high: string[]; medium: string[]; low: string[] }> = {
+  'Aries': { high: ['Leo', 'Sagittarius', 'Gemini', 'Aquarius'], medium: ['Aries', 'Libra'], low: ['Cancer', 'Capricorn'] },
+  'Taurus': { high: ['Virgo', 'Capricorn', 'Cancer', 'Pisces'], medium: ['Taurus', 'Scorpio'], low: ['Leo', 'Aquarius'] },
+  'Gemini': { high: ['Libra', 'Aquarius', 'Aries', 'Leo'], medium: ['Gemini', 'Sagittarius'], low: ['Virgo', 'Pisces'] },
+  'Cancer': { high: ['Scorpio', 'Pisces', 'Taurus', 'Virgo'], medium: ['Cancer', 'Capricorn'], low: ['Aries', 'Libra'] },
+  'Leo': { high: ['Aries', 'Sagittarius', 'Gemini', 'Libra'], medium: ['Leo', 'Aquarius'], low: ['Taurus', 'Scorpio'] },
+  'Virgo': { high: ['Taurus', 'Capricorn', 'Cancer', 'Scorpio'], medium: ['Virgo', 'Pisces'], low: ['Gemini', 'Sagittarius'] },
+  'Libra': { high: ['Gemini', 'Aquarius', 'Leo', 'Sagittarius'], medium: ['Libra', 'Aries'], low: ['Cancer', 'Capricorn'] },
+  'Scorpio': { high: ['Cancer', 'Pisces', 'Virgo', 'Capricorn'], medium: ['Scorpio', 'Taurus'], low: ['Leo', 'Aquarius'] },
+  'Sagittarius': { high: ['Aries', 'Leo', 'Libra', 'Aquarius'], medium: ['Sagittarius', 'Gemini'], low: ['Virgo', 'Pisces'] },
+  'Capricorn': { high: ['Taurus', 'Virgo', 'Scorpio', 'Pisces'], medium: ['Capricorn', 'Cancer'], low: ['Aries', 'Libra'] },
+  'Aquarius': { high: ['Gemini', 'Libra', 'Aries', 'Sagittarius'], medium: ['Aquarius', 'Leo'], low: ['Taurus', 'Scorpio'] },
+  'Pisces': { high: ['Cancer', 'Scorpio', 'Taurus', 'Capricorn'], medium: ['Pisces', 'Virgo'], low: ['Gemini', 'Sagittarius'] },
+};
+
+const zodiacPredictions: Record<string, Record<string, string>> = {
+  high: {
+    'Aries-Leo': "Fire meets fire! Your passion will light up any room. Expect spontaneous adventures and lots of laughter 🔥",
+    'Aries-Sagittarius': "Two free spirits ready to conquer the world together. Pack your bags—this love is an adventure! 🌍",
+    'Taurus-Virgo': "A match made in earth sign heaven. Stability, loyalty, and cozy Sunday mornings await 🌿",
+    'Gemini-Libra': "Intellectual fireworks! Your conversations will never get boring. Social power couple alert 💫",
+    'Cancer-Scorpio': "Deep emotional waters where true intimacy flourishes. This connection is soul-level deep 🌊",
+    'Leo-Sagittarius': "Royalty meets adventure! Your combined charisma could power a small city ✨",
+    'default': "The stars are strongly aligned! This cosmic connection has major potential 🌟"
+  },
+  medium: {
+    'Aries-Libra': "Opposites attract! Balance passion with harmony for a dynamic relationship ⚖️",
+    'Taurus-Scorpio': "Intense and magnetic. You'll challenge each other to grow in beautiful ways 💎",
+    'Gemini-Sagittarius': "Curious minds unite! Expect philosophical debates and global adventures 🗺️",
+    'default': "An interesting cosmic pairing—your differences can complement each other wonderfully 🌙"
+  },
+  low: {
+    'Aries-Cancer': "Different rhythms, but patience can create unexpected harmony 🎵",
+    'Taurus-Leo': "Strong-willed souls! With compromise, stubbornness becomes determination together 💪",
+    'default': "The stars say you'll have to work for it—but the best things in life are earned 🌠"
+  }
+};
+
+const zodiacLoveAdvice: Record<string, string[]> = {
+  'Aries': ["Match their energy with spontaneity", "Be direct about your feelings", "Plan active dates"],
+  'Taurus': ["Slow and steady wins their heart", "Create cozy, sensory experiences", "Be patient and consistent"],
+  'Gemini': ["Keep conversations stimulating", "Be open to last-minute plan changes", "Show your wit and humor"],
+  'Cancer': ["Create emotional safety first", "Remember the little things", "Home-cooked meals are magic"],
+  'Leo': ["Give genuine compliments often", "Plan grand romantic gestures", "Let them shine—they'll adore you for it"],
+  'Virgo': ["Notice the details they put in", "Be reliable and on time", "Show you value growth"],
+  'Libra': ["Bring romance and aesthetics", "Seek harmony over conflict", "Plan beautiful experiences"],
+  'Scorpio': ["Be authentic—they see through pretense", "Build trust gradually", "Embrace deep conversations"],
+  'Sagittarius': ["Embrace adventure together", "Give them space to explore", "Keep your sense of humor"],
+  'Capricorn': ["Show ambition and stability", "Be patient—they open up slowly", "Respect their goals"],
+  'Aquarius': ["Value their uniqueness", "Discuss ideas and causes", "Give them intellectual freedom"],
+  'Pisces': ["Be gentle and romantic", "Share creative experiences", "Connect through art and music"],
+};
+
+const extractSignName = (signWithEmoji: string): string => {
+  return signWithEmoji.split(' ')[0];
+};
+
+const getZodiacCompatibility = (userSign: string, matchSign: string): { 
+  compatibility: 'high' | 'medium' | 'low'; 
+  prediction: string;
+  loveAdvice: string;
+} => {
+  const userSignName = extractSignName(userSign);
+  const matchSignName = extractSignName(matchSign);
+  
+  const userCompat = zodiacCompatibility[userSignName];
+  if (!userCompat) {
+    return { 
+      compatibility: 'medium', 
+      prediction: zodiacPredictions.medium.default,
+      loveAdvice: "Follow your heart and let the connection unfold naturally"
+    };
+  }
+  
+  let compatibility: 'high' | 'medium' | 'low' = 'medium';
+  if (userCompat.high.includes(matchSignName)) compatibility = 'high';
+  else if (userCompat.low.includes(matchSignName)) compatibility = 'low';
+  
+  const pairKey = `${userSignName}-${matchSignName}`;
+  const reversePairKey = `${matchSignName}-${userSignName}`;
+  const predictions = zodiacPredictions[compatibility];
+  const prediction = predictions[pairKey] || predictions[reversePairKey] || predictions.default;
+  
+  const advices = zodiacLoveAdvice[matchSignName] || ["Be yourself and enjoy the connection"];
+  const loveAdvice = advices[Math.floor(Math.random() * advices.length)];
+  
+  return { compatibility, prediction, loveAdvice };
+};
+
 export const generateMatches = (
-  userProfile: Partial<Profile> & { persona?: PersonaResult }, 
+  userProfile: Partial<Profile> & { persona?: PersonaResult; zodiacSign?: string; useZodiacMatching?: boolean }, 
   count: number = 3
 ): MatchResult[] => {
   const availableProfiles = mockProfiles.filter(p => {
@@ -227,6 +324,32 @@ export const generateMatches = (
         : "They'll introduce you to new jokes!"
     });
 
+    // 7. Zodiac Compatibility (if enabled)
+    let zodiacCompatibilityResult: MatchResult['zodiacCompatibility'] = undefined;
+    const userSign = userProfile.zodiacSign || '';
+    const matchSign = profile.sign || '';
+    
+    if (userProfile.useZodiacMatching && userSign && matchSign) {
+      const zodiacResult = getZodiacCompatibility(userSign, matchSign);
+      zodiacCompatibilityResult = {
+        userSign,
+        matchSign,
+        ...zodiacResult
+      };
+      
+      // Add zodiac factor to match factors
+      const zodiacScore = zodiacResult.compatibility === 'high' ? 15 : 
+                         zodiacResult.compatibility === 'medium' ? 10 : 5;
+      matchFactors.push({
+        name: "Zodiac Alignment",
+        score: zodiacScore,
+        maxScore: 15,
+        icon: "⭐",
+        description: `${userSign} + ${matchSign}: ${zodiacResult.compatibility === 'high' ? 'Written in the stars!' : 
+                     zodiacResult.compatibility === 'medium' ? 'Cosmic potential!' : 'Challenge accepted!'}`
+      });
+    }
+
     // Calculate total score
     const totalScore = matchFactors.reduce((acc, f) => acc + f.score, 0);
     const maxPossible = matchFactors.reduce((acc, f) => acc + f.maxScore, 0);
@@ -255,6 +378,7 @@ export const generateMatches = (
       distanceMiles: distance,
       personaMatch,
       matchFactors,
+      zodiacCompatibility: zodiacCompatibilityResult,
     };
   })
   .sort((a, b) => b.compatibilityScore - a.compatibilityScore)

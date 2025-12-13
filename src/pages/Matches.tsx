@@ -356,7 +356,7 @@ const SwipeCard = ({
   onSwipe: (direction: 'left' | 'right') => void;
   stackIndex: number;
 }) => {
-  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch } = match;
+  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch, zodiacCompatibility } = match;
   
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
@@ -466,6 +466,45 @@ const SwipeCard = ({
             </p>
           </div>
 
+          {/* Zodiac Compatibility */}
+          {zodiacCompatibility && (
+            <motion.div 
+              className={`rounded-xl p-3 mb-3 border ${
+                zodiacCompatibility.compatibility === 'high' 
+                  ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30' 
+                  : zodiacCompatibility.compatibility === 'medium'
+                  ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'
+                  : 'bg-gradient-to-r from-slate-500/10 to-gray-500/10 border-slate-500/30'
+              }`}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                <Star className="w-3.5 h-3.5 text-violet-400" />
+                <span className="text-xs font-semibold text-violet-400">
+                  {zodiacCompatibility.userSign} × {zodiacCompatibility.matchSign}
+                </span>
+                <Badge 
+                  className={`text-[10px] ml-auto ${
+                    zodiacCompatibility.compatibility === 'high' 
+                      ? 'bg-violet-500/20 text-violet-300 border-violet-500/30' 
+                      : zodiacCompatibility.compatibility === 'medium'
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                      : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+                  }`}
+                  variant="outline"
+                >
+                  {zodiacCompatibility.compatibility === 'high' ? '🌟 Cosmic Match' : 
+                   zodiacCompatibility.compatibility === 'medium' ? '✨ Potential' : '🔮 Challenge'}
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                {zodiacCompatibility.prediction}
+              </p>
+            </motion.div>
+          )}
+
           {/* Common Values */}
           <div className="flex flex-wrap gap-1.5">
             {commonValues.slice(0, 4).map((value, idx) => (
@@ -501,7 +540,7 @@ const MatchCard = ({
   rank: number;
   onPlanDate: () => void;
 }) => {
-  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch, matchFactors } = match;
+  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch, matchFactors, zodiacCompatibility } = match;
   const [showFactors, setShowFactors] = useState(false);
   
   const getScoreColor = (score: number) => {
@@ -589,6 +628,55 @@ const MatchCard = ({
             {reasoning}
           </p>
         </div>
+
+        {/* Zodiac Compatibility */}
+        {zodiacCompatibility && (
+          <motion.div 
+            className={`rounded-xl p-4 mb-4 border ${
+              zodiacCompatibility.compatibility === 'high' 
+                ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30' 
+                : zodiacCompatibility.compatibility === 'medium'
+                ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'
+                : 'bg-gradient-to-r from-slate-500/10 to-gray-500/10 border-slate-500/30'
+            }`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="w-4 h-4 text-violet-400" />
+              <span className="text-sm font-semibold text-violet-400">
+                Astrological Insight
+              </span>
+              <Badge 
+                className={`text-[10px] ml-auto ${
+                  zodiacCompatibility.compatibility === 'high' 
+                    ? 'bg-violet-500/20 text-violet-300 border-violet-500/30' 
+                    : zodiacCompatibility.compatibility === 'medium'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                    : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
+                }`}
+                variant="outline"
+              >
+                {zodiacCompatibility.compatibility === 'high' ? '🌟 Written in Stars' : 
+                 zodiacCompatibility.compatibility === 'medium' ? '✨ Cosmic Potential' : '🔮 Growth Opportunity'}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+              <span className="px-2 py-0.5 rounded-full bg-violet-500/20">{zodiacCompatibility.userSign}</span>
+              <span>×</span>
+              <span className="px-2 py-0.5 rounded-full bg-purple-500/20">{zodiacCompatibility.matchSign}</span>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed mb-2">
+              {zodiacCompatibility.prediction}
+            </p>
+            <div className="pt-2 border-t border-border/30">
+              <p className="text-xs text-muted-foreground">
+                💡 <span className="font-medium">Love Tip:</span> {zodiacCompatibility.loveAdvice}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         {/* Persona Match Badge */}
         {personaMatch && (
