@@ -204,15 +204,17 @@ const DatePlanPage = () => {
       setStep('results');
       toast.success('Your fate has been generated!');
 
-      // Generate images for first 2 venues (to save API calls)
+      // Auto-generate images for ALL venues in first plan
       if (data.plans?.[0]?.timeline) {
-        const venuesToGenerate = data.plans[0].timeline.slice(0, 2);
-        for (const item of venuesToGenerate) {
-          const imageUrl = await generateVenueImage(item.venue, city);
-          if (imageUrl) {
-            setVenueImages(prev => ({ ...prev, [item.venue]: imageUrl }));
+        const generateAllImages = async () => {
+          for (const item of data.plans[0].timeline) {
+            const imageUrl = await generateVenueImage(item.venue, city);
+            if (imageUrl) {
+              setVenueImages(prev => ({ ...prev, [item.venue]: imageUrl }));
+            }
           }
-        }
+        };
+        generateAllImages();
       }
     } catch (err) {
       console.error('Error generating date plan:', err);
@@ -250,6 +252,7 @@ const DatePlanPage = () => {
   }
 
   if (step === 'results' && datePlans) {
+    const matchId = localStorage.getItem('matchaSelectedMatch') || undefined;
     return (
       <ResultsView 
         datePlans={datePlans}
@@ -262,6 +265,8 @@ const DatePlanPage = () => {
         onRegenerate={generateDatePlan}
         userName={userName}
         partnerName={partnerName}
+        partnerImage={partnerImage}
+        matchId={matchId}
         venueImages={venueImages}
         city={city}
         vibe={vibe}
@@ -566,6 +571,8 @@ interface ResultsViewProps {
   onRegenerate: () => void;
   userName: string;
   partnerName: string;
+  partnerImage?: string;
+  matchId?: string;
   venueImages: Record<string, string>;
   city: string;
   vibe: string;
@@ -584,6 +591,8 @@ const ResultsView = ({
   onRegenerate,
   userName,
   partnerName,
+  partnerImage,
+  matchId,
   venueImages,
   city,
   vibe,
@@ -591,6 +600,7 @@ const ResultsView = ({
   setVenueImages
 }: ResultsViewProps) => {
   const [generatingImage, setGeneratingImage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const plan = datePlans.plans[selectedPlan];
 
   const handleGenerateImage = async (venue: string) => {
@@ -600,6 +610,32 @@ const ResultsView = ({
       setVenueImages(prev => ({ ...prev, [venue]: imageUrl }));
     }
     setGeneratingImage(null);
+  };
+
+  const handleSavePlan = () => {
+    setIsSaving(true);
+    
+    const savedDate = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      matchId: matchId || '',
+      matchName: partnerName,
+      matchImage: partnerImage,
+      planTitle: plan.title,
+      planTheme: plan.theme,
+      city,
+      savedAt: new Date().toISOString(),
+      timeline: plan.timeline.map(t => ({ venue: t.venue, time: t.time }))
+    };
+
+    const existingSaved = localStorage.getItem('matchaSavedDates');
+    const savedDates = existingSaved ? JSON.parse(existingSaved) : [];
+    savedDates.push(savedDate);
+    localStorage.setItem('matchaSavedDates', JSON.stringify(savedDates));
+    
+    setTimeout(() => {
+      setIsSaving(false);
+      toast.success('Date plan saved! View it in "Saved Dates" on the Matches page.');
+    }, 500);
   };
 
   return (
@@ -685,44 +721,29 @@ const ResultsView = ({
                       </button>
                       <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
                       
-                      {/* Venue Image */}
-                      {index < 2 && (
-                        <div className="mt-3">
-                          {venueImages[item.venue] ? (
-                            <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border/50">
-                              <img 
-                                src={venueImages[item.venue]} 
-                                alt={item.venue}
-                                className="w-full h-full object-cover"
-                              />
-                              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
-                              <Badge className="absolute bottom-2 left-2 bg-background/80 text-foreground text-xs">
-                                AI Generated Preview
-                              </Badge>
+                      {/* Venue Image - Auto-generated for all venues */}
+                      <div className="mt-3">
+                        {venueImages[item.venue] ? (
+                          <div className="relative w-full h-40 rounded-xl overflow-hidden border border-border/50">
+                            <img 
+                              src={venueImages[item.venue]} 
+                              alt={item.venue}
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+                            <Badge className="absolute bottom-2 left-2 bg-background/80 text-foreground text-xs">
+                              AI Generated Preview
+                            </Badge>
+                          </div>
+                        ) : (
+                          <div className="w-full h-40 rounded-xl bg-muted/50 border border-border/50 flex items-center justify-center">
+                            <div className="text-center">
+                              <Loader2 className="w-6 h-6 animate-spin text-muted-foreground mx-auto mb-2" />
+                              <span className="text-xs text-muted-foreground">Generating preview...</span>
                             </div>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleGenerateImage(item.venue)}
-                              disabled={generatingImage === item.venue}
-                              className="text-xs"
-                            >
-                              {generatingImage === item.venue ? (
-                                <>
-                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                                  Generating...
-                                </>
-                              ) : (
-                                <>
-                                  <ImageIcon className="w-3 h-3 mr-1" />
-                                  Generate Preview
-                                </>
-                              )}
-                            </Button>
-                          )}
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -792,10 +813,20 @@ const ResultsView = ({
         <Button 
           size="lg"
           className="w-full mt-6 bg-gradient-romantic text-primary-foreground"
-          onClick={() => toast.success('Date plan saved! Good luck!')}
+          onClick={handleSavePlan}
+          disabled={isSaving}
         >
-          <Heart className="w-5 h-5 mr-2" />
-          Save This Plan
+          {isSaving ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <Heart className="w-5 h-5 mr-2" />
+              Save This Plan
+            </>
+          )}
         </Button>
       </div>
     </div>

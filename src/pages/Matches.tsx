@@ -3,11 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users, ChevronDown, ChevronUp, Briefcase, X, Star, ArrowRight } from 'lucide-react';
+import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users, ChevronDown, ChevronUp, Briefcase, X, Star, ArrowRight, Clock, Loader2 } from 'lucide-react';
 import { generateMatches, MatchResult, MatchFactor } from '@/data/mockMatching';
 import { toast } from 'sonner';
 import { Progress } from '@/components/ui/progress';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { MatchingAnimation } from '@/components/MatchingAnimation';
+
+interface SavedDatePlan {
+  id: string;
+  matchId: string;
+  matchName: string;
+  matchImage?: string;
+  planTitle: string;
+  planTheme: string;
+  city: string;
+  savedAt: string;
+  timeline: { venue: string; time: string }[];
+}
 
 const LOADING_STEPS = [
   { text: "Scanning your vibe...", duration: 600 },
@@ -24,7 +37,14 @@ const Matches = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [swipedMatches, setSwipedMatches] = useState<{ match: MatchResult; liked: boolean }[]>([]);
-  const [viewMode, setViewMode] = useState<'swipe' | 'grid'>('swipe');
+  const [viewMode, setViewMode] = useState<'swipe' | 'grid' | 'saved'>('swipe');
+  const [savedDates, setSavedDates] = useState<SavedDatePlan[]>([]);
+  
+  // Matching animation state
+  const [showMatchingAnimation, setShowMatchingAnimation] = useState(false);
+  const [pendingMatchId, setPendingMatchId] = useState<string | null>(null);
+  const [userName, setUserName] = useState('You');
+  const [userImage, setUserImage] = useState<string | undefined>();
 
   useEffect(() => {
     const userProfile = localStorage.getItem('matchaUserProfile');
@@ -35,10 +55,19 @@ const Matches = () => {
       return;
     }
 
+    const profile = JSON.parse(userProfile);
+    setUserName(profile.name || 'You');
+    setUserImage(profile.profileImage);
+
+    // Load saved dates
+    const saved = localStorage.getItem('matchaSavedDates');
+    if (saved) {
+      setSavedDates(JSON.parse(saved));
+    }
+
     const totalDuration = LOADING_STEPS.reduce((acc, s) => acc + s.duration, 0);
     const timer = setTimeout(() => {
-      const profile = JSON.parse(userProfile);
-      const results = generateMatches(profile, 8); // Generate more matches
+      const results = generateMatches(profile, 8);
       setMatches(results);
       setIsLoading(false);
     }, totalDuration + 500);
@@ -64,11 +93,33 @@ const Matches = () => {
   };
 
   const handlePlanDate = (matchId: string) => {
-    localStorage.setItem('matchaSelectedMatch', matchId);
-    navigate('/date-plan');
+    // Show matching animation first
+    setPendingMatchId(matchId);
+    setShowMatchingAnimation(true);
+  };
+
+  const handleMatchingComplete = () => {
+    setShowMatchingAnimation(false);
+    if (pendingMatchId) {
+      localStorage.setItem('matchaSelectedMatch', pendingMatchId);
+      navigate('/date-plan');
+    }
   };
 
   const likedMatches = swipedMatches.filter(m => m.liked);
+  const pendingMatch = matches.find(m => m.profile.id === pendingMatchId);
+
+  if (showMatchingAnimation && pendingMatch) {
+    return (
+      <MatchingAnimation
+        userName={userName}
+        partnerName={pendingMatch.profile.name}
+        userImage={userImage}
+        partnerImage={pendingMatch.profile.profileImage}
+        onComplete={handleMatchingComplete}
+      />
+    );
+  }
 
   if (isLoading) {
     return <LoadingState />;
@@ -145,10 +196,21 @@ const Matches = () => {
             <Users className="w-4 h-4 mr-2" />
             Grid View
           </Button>
+          <Button 
+            variant={viewMode === 'saved' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setViewMode('saved')}
+            className="rounded-full"
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Saved Dates {savedDates.length > 0 && `(${savedDates.length})`}
+          </Button>
         </motion.div>
       </motion.div>
 
-      {viewMode === 'swipe' ? (
+      {viewMode === 'saved' ? (
+        <SavedDatesView savedDates={savedDates} setSavedDates={setSavedDates} />
+      ) : viewMode === 'swipe' ? (
         <div className="max-w-md mx-auto">
           {/* Swipe Counter */}
           <motion.div 
@@ -175,6 +237,7 @@ const Matches = () => {
                     isTop={idx === matches.slice(currentIndex, currentIndex + 3).length - 1}
                     onSwipe={handleSwipe}
                     stackIndex={matches.slice(currentIndex, currentIndex + 3).length - 1 - idx}
+                    onPlanDate={() => handlePlanDate(match.profile.id)}
                   />
                 ))
               ) : (
@@ -269,9 +332,10 @@ const Matches = () => {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: idx * 0.1 }}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 cursor-pointer"
+                    onClick={() => handlePlanDate(match.profile.id)}
                   >
-                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary">
+                    <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary hover:scale-110 transition-transform">
                       {match.profile.profileImage ? (
                         <img 
                           src={match.profile.profileImage} 
@@ -345,16 +409,144 @@ const Matches = () => {
   );
 };
 
+const SavedDatesView = ({ 
+  savedDates, 
+  setSavedDates 
+}: { 
+  savedDates: SavedDatePlan[];
+  setSavedDates: React.Dispatch<React.SetStateAction<SavedDatePlan[]>>;
+}) => {
+  const navigate = useNavigate();
+
+  const handleDelete = (id: string) => {
+    const updated = savedDates.filter(d => d.id !== id);
+    setSavedDates(updated);
+    localStorage.setItem('matchaSavedDates', JSON.stringify(updated));
+    toast.success('Date plan removed');
+  };
+
+  const handleViewPlan = (date: SavedDatePlan) => {
+    localStorage.setItem('matchaSelectedMatch', date.matchId);
+    navigate('/date-plan');
+  };
+
+  if (savedDates.length === 0) {
+    return (
+      <motion.div 
+        className="max-w-md mx-auto text-center py-16"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <Calendar className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+        <h3 className="font-display text-2xl font-bold mb-2">No Saved Dates Yet</h3>
+        <p className="text-muted-foreground mb-6">
+          When you plan dates with your matches, they'll appear here!
+        </p>
+        <Button 
+          onClick={() => {}}
+          variant="outline"
+        >
+          Start Matching
+        </Button>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div 
+      className="max-w-4xl mx-auto grid gap-6 md:grid-cols-2"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      {savedDates.map((date, index) => (
+        <motion.div
+          key={date.id}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+        >
+          <Card className="overflow-hidden border border-border/50 hover:border-primary/50 transition-colors">
+            <div className="p-5">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary">
+                  {date.matchImage ? (
+                    <img 
+                      src={date.matchImage} 
+                      alt={date.matchName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-romantic flex items-center justify-center text-lg font-bold text-white">
+                      {date.matchName.charAt(0)}
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-display text-lg font-bold">Date with {date.matchName}</h3>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {date.city}
+                  </p>
+                </div>
+                <Badge className="bg-gradient-romantic text-primary-foreground">{date.planTheme}</Badge>
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-3 mb-4">
+                <h4 className="font-semibold text-sm mb-2">{date.planTitle}</h4>
+                <div className="space-y-1">
+                  {date.timeline.slice(0, 2).map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Clock className="w-3 h-3" />
+                      <span>{item.time}</span>
+                      <span>—</span>
+                      <span className="truncate">{item.venue}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  Saved {new Date(date.savedAt).toLocaleDateString()}
+                </span>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => handleDelete(date.id)}
+                    className="text-destructive hover:text-destructive"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                  <Button 
+                    size="sm"
+                    onClick={() => handleViewPlan(date)}
+                    className="bg-gradient-romantic"
+                  >
+                    View Plan
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+};
+
 const SwipeCard = ({ 
   match, 
   isTop,
   onSwipe,
-  stackIndex
+  stackIndex,
+  onPlanDate
 }: { 
   match: MatchResult;
   isTop: boolean;
   onSwipe: (direction: 'left' | 'right') => void;
   stackIndex: number;
+  onPlanDate: () => void;
 }) => {
   const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch, zodiacCompatibility } = match;
   
@@ -461,70 +653,38 @@ const SwipeCard = ({
               <Sparkles className="w-3.5 h-3.5" />
               Why You Match
             </div>
-            <p className="text-sm text-foreground leading-relaxed line-clamp-2">
-              {reasoning}
-            </p>
+            <p className="text-sm line-clamp-2">{reasoning}</p>
           </div>
 
           {/* Zodiac Compatibility */}
           {zodiacCompatibility && (
-            <motion.div 
-              className={`rounded-xl p-3 mb-3 border ${
-                zodiacCompatibility.compatibility === 'high' 
-                  ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30' 
-                  : zodiacCompatibility.compatibility === 'medium'
-                  ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'
-                  : 'bg-gradient-to-r from-slate-500/10 to-gray-500/10 border-slate-500/30'
-              }`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <Star className="w-3.5 h-3.5 text-violet-400" />
-                <span className="text-xs font-semibold text-violet-400">
-                  {zodiacCompatibility.userSign} × {zodiacCompatibility.matchSign}
-                </span>
-                <Badge 
-                  className={`text-[10px] ml-auto ${
-                    zodiacCompatibility.compatibility === 'high' 
-                      ? 'bg-violet-500/20 text-violet-300 border-violet-500/30' 
-                      : zodiacCompatibility.compatibility === 'medium'
-                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                      : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
-                  }`}
-                  variant="outline"
-                >
-                  {zodiacCompatibility.compatibility === 'high' ? '🌟 Cosmic Match' : 
-                   zodiacCompatibility.compatibility === 'medium' ? '✨ Potential' : '🔮 Challenge'}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                {zodiacCompatibility.prediction}
-              </p>
-            </motion.div>
+            <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-love-gold/10 border border-love-gold/20">
+              <Star className="w-4 h-4 text-love-gold" />
+              <span className="text-xs font-medium">{zodiacCompatibility.matchSign}</span>
+              <span className="text-xs text-muted-foreground">— {zodiacCompatibility.prediction.slice(0, 50)}...</span>
+            </div>
           )}
 
           {/* Common Values */}
-          <div className="flex flex-wrap gap-1.5">
-            {commonValues.slice(0, 4).map((value, idx) => (
-              <motion.div
-                key={value}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + idx * 0.1 }}
-              >
-                <Badge variant="outline" className="text-xs capitalize">
-                  {value}
-                </Badge>
-              </motion.div>
-            ))}
-            {commonValues.length > 4 && (
-              <Badge variant="secondary" className="text-xs">
-                +{commonValues.length - 4} more
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {commonValues.slice(0, 4).map((value, i) => (
+              <Badge key={i} variant="secondary" className="text-xs rounded-full">
+                {value}
               </Badge>
-            )}
+            ))}
           </div>
+
+          {/* Plan Date Button */}
+          <Button 
+            className="w-full bg-gradient-romantic shadow-glow"
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlanDate();
+            }}
+          >
+            <Calendar className="w-4 h-4 mr-2" />
+            Plan a Date
+          </Button>
         </div>
       </Card>
     </motion.div>
@@ -533,257 +693,153 @@ const SwipeCard = ({
 
 const MatchCard = ({ 
   match, 
-  rank, 
+  rank,
   onPlanDate 
 }: { 
   match: MatchResult; 
   rank: number;
   onPlanDate: () => void;
 }) => {
-  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch, matchFactors, zodiacCompatibility } = match;
-  const [showFactors, setShowFactors] = useState(false);
-  
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return 'bg-gradient-to-r from-primary to-secondary text-primary-foreground';
-    if (score >= 75) return 'bg-gradient-to-r from-amber-400 to-orange-500 text-white';
-    return 'bg-muted text-muted-foreground';
-  };
-
-  const getRankBadge = (r: number) => {
-    if (r === 1) return { label: 'Top Match', color: 'bg-gradient-to-r from-amber-400 to-yellow-500' };
-    if (r === 2) return { label: '2nd Best', color: 'bg-gradient-to-r from-slate-300 to-slate-400' };
-    if (r === 3) return { label: '3rd Pick', color: 'bg-gradient-to-r from-amber-600 to-orange-700' };
-    return { label: `#${r}`, color: 'bg-muted' };
-  };
-
-  const rankBadge = getRankBadge(rank);
+  const [expanded, setExpanded] = useState(false);
+  const { profile, compatibilityScore, reasoning, matchFactors, commonValues, distanceMiles, personaMatch, zodiacCompatibility } = match;
 
   return (
-    <Card className="overflow-hidden border border-border/50 hover:border-primary/30 transition-all hover:shadow-xl group relative bg-card/90 backdrop-blur">
-      <motion.div 
-        className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"
-        initial={{ opacity: 0 }}
-        whileHover={{ opacity: 1 }}
-      />
-      
-      {/* Profile Image */}
-      <div className="relative h-64 overflow-hidden">
-        {profile.profileImage ? (
-          <motion.img 
-            src={profile.profileImage} 
-            alt={profile.name}
-            className="w-full h-full object-cover"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-romantic flex items-center justify-center">
-            <span className="text-6xl font-display font-bold text-primary-foreground/50">
-              {profile.name.charAt(0)}
-            </span>
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-        
-        {/* Rank Badge */}
-        <motion.div 
-          className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold text-white ${rankBadge.color}`}
-          whileHover={{ scale: 1.1 }}
-        >
-          {rankBadge.label}
-        </motion.div>
-        
-        {/* Score Badge */}
-        <motion.div 
-          className={`absolute top-3 right-3 px-3 py-2 rounded-xl font-display text-2xl font-bold ${getScoreColor(compatibilityScore)} shadow-lg`}
-          whileHover={{ scale: 1.1 }}
-        >
-          {compatibilityScore}%
-        </motion.div>
-      </div>
-      
-      <div className="p-5 relative">
-        {/* Name and Info */}
-        <div className="mb-4">
-          <h3 className="font-display text-2xl font-bold">{profile.name}, {profile.age}</h3>
-          <div className="flex items-center gap-3 text-muted-foreground text-sm mt-1">
-            <span className="flex items-center gap-1">
-              <Briefcase className="w-3.5 h-3.5" />
-              {profile.job}
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {distanceMiles.toFixed(1)} mi
-            </span>
-          </div>
-        </div>
-
-        {/* Why You Match */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-4 mb-4 border border-primary/20">
-          <div className="flex items-center gap-2 text-primary text-xs font-semibold mb-2">
-            <Sparkles className="w-4 h-4" />
-            Why You Match
-          </div>
-          <p className="text-sm text-foreground leading-relaxed">
-            {reasoning}
-          </p>
-        </div>
-
-        {/* Zodiac Compatibility */}
-        {zodiacCompatibility && (
-          <motion.div 
-            className={`rounded-xl p-4 mb-4 border ${
-              zodiacCompatibility.compatibility === 'high' 
-                ? 'bg-gradient-to-r from-violet-500/10 to-purple-500/10 border-violet-500/30' 
-                : zodiacCompatibility.compatibility === 'medium'
-                ? 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 border-amber-500/30'
-                : 'bg-gradient-to-r from-slate-500/10 to-gray-500/10 border-slate-500/30'
-            }`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            whileHover={{ scale: 1.02 }}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Star className="w-4 h-4 text-violet-400" />
-              <span className="text-sm font-semibold text-violet-400">
-                Astrological Insight
+    <motion.div layout>
+      <Card className="overflow-hidden border border-border/50 hover:border-primary/50 transition-all duration-300 hover:shadow-lg">
+        {/* Profile Header */}
+        <div className="relative h-48 overflow-hidden">
+          {profile.profileImage ? (
+            <img 
+              src={profile.profileImage} 
+              alt={profile.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-romantic flex items-center justify-center">
+              <span className="text-6xl font-display font-bold text-primary-foreground/50">
+                {profile.name.charAt(0)}
               </span>
-              <Badge 
-                className={`text-[10px] ml-auto ${
-                  zodiacCompatibility.compatibility === 'high' 
-                    ? 'bg-violet-500/20 text-violet-300 border-violet-500/30' 
-                    : zodiacCompatibility.compatibility === 'medium'
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                    : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
-                }`}
-                variant="outline"
-              >
-                {zodiacCompatibility.compatibility === 'high' ? '🌟 Written in Stars' : 
-                 zodiacCompatibility.compatibility === 'medium' ? '✨ Cosmic Potential' : '🔮 Growth Opportunity'}
-              </Badge>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-              <span className="px-2 py-0.5 rounded-full bg-violet-500/20">{zodiacCompatibility.userSign}</span>
-              <span>×</span>
-              <span className="px-2 py-0.5 rounded-full bg-purple-500/20">{zodiacCompatibility.matchSign}</span>
-            </div>
-            <p className="text-sm text-foreground leading-relaxed mb-2">
-              {zodiacCompatibility.prediction}
-            </p>
-            <div className="pt-2 border-t border-border/30">
-              <p className="text-xs text-muted-foreground">
-                💡 <span className="font-medium">Love Tip:</span> {zodiacCompatibility.loveAdvice}
-              </p>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Persona Match Badge */}
-        {personaMatch && (
-          <motion.div 
-            className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-muted/50 border border-border/50"
-            whileHover={{ scale: 1.02 }}
-          >
-            <Users className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-medium">{personaMatch.matchType}</span>
-            <Badge variant="secondary" className="text-xs ml-auto">
-              +{personaMatch.bonus} chemistry
-            </Badge>
-          </motion.div>
-        )}
-
-        {/* Match Factors Breakdown */}
-        <motion.button 
-          onClick={() => setShowFactors(!showFactors)}
-          className="w-full flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors mb-4 text-sm"
-          whileTap={{ scale: 0.98 }}
-        >
-          <span className="font-medium flex items-center gap-2">
-            Compatibility Breakdown
-          </span>
-          <motion.div
-            animate={{ rotate: showFactors ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ChevronDown className="w-4 h-4" />
-          </motion.div>
-        </motion.button>
-
-        <AnimatePresence>
-          {showFactors && matchFactors && (
-            <motion.div 
-              className="space-y-3 mb-4 p-4 rounded-xl bg-muted/30 border border-border/50"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {matchFactors.map((factor, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <MatchFactorBar factor={factor} />
-                </motion.div>
-              ))}
-            </motion.div>
           )}
-        </AnimatePresence>
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
+          
+          {/* Rank Badge */}
+          <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-gradient-romantic flex items-center justify-center font-display font-bold text-sm text-primary-foreground shadow-lg">
+            #{rank}
+          </div>
+          
+          {/* Score */}
+          <motion.div 
+            className="absolute top-3 right-3 px-3 py-1.5 rounded-xl font-display text-xl font-bold bg-card/90 backdrop-blur text-primary shadow-lg"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.1 * rank, type: "spring" }}
+          >
+            {compatibilityScore}%
+          </motion.div>
+        </div>
 
-        {/* Common Values */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {commonValues.map((value, idx) => (
-            <motion.div
-              key={value}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.05 }}
-            >
-              <Badge variant="outline" className="text-xs capitalize">
+        <div className="p-4">
+          {/* Name and Basic Info */}
+          <div className="mb-3">
+            <h3 className="font-display text-xl font-bold">{profile.name}, {profile.age}</h3>
+            <div className="flex items-center gap-3 text-muted-foreground text-sm mt-1">
+              <span className="flex items-center gap-1">
+                <Briefcase className="w-3.5 h-3.5" />
+                {profile.job}
+              </span>
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5" />
+                {distanceMiles.toFixed(1)} mi
+              </span>
+            </div>
+          </div>
+
+          {/* Why You Match */}
+          <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-3 mb-4 border border-primary/20">
+            <div className="flex items-center gap-2 text-primary text-xs font-semibold mb-1">
+              <Sparkles className="w-3.5 h-3.5" />
+              Why You Match
+            </div>
+            <p className="text-sm">{reasoning}</p>
+          </div>
+
+          {/* Common Values */}
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {commonValues.slice(0, 4).map((value, i) => (
+              <Badge key={i} variant="secondary" className="text-xs rounded-full">
                 {value}
               </Badge>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Action Button */}
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          {/* Expandable Details */}
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                {/* Zodiac Section */}
+                {zodiacCompatibility && (
+                  <div className="mb-4 p-3 rounded-xl bg-love-gold/10 border border-love-gold/20">
+                    <div className="flex items-center gap-2 text-love-gold text-xs font-semibold mb-2">
+                      <Star className="w-3.5 h-3.5" />
+                      Zodiac Insight: {zodiacCompatibility.matchSign}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{zodiacCompatibility.prediction}</p>
+                  </div>
+                )}
+
+                {/* Compatibility Factors */}
+                <div className="space-y-2 mb-4">
+                  {matchFactors.slice(0, 3).map((factor, i) => (
+                    <div key={i} className="space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-muted-foreground">{factor.name}</span>
+                        <span className="font-medium">{factor.score}%</span>
+                      </div>
+                      <Progress value={factor.score} className="h-1.5" />
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Expand Button */}
           <Button 
-            className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 text-primary-foreground font-semibold"
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setExpanded(!expanded)}
+            className="w-full mb-3 text-xs"
+          >
+            {expanded ? (
+              <>
+                <ChevronUp className="w-4 h-4 mr-1" />
+                Show Less
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-4 h-4 mr-1" />
+                Show More
+              </>
+            )}
+          </Button>
+
+          {/* Plan Date Button */}
+          <Button 
+            className="w-full bg-gradient-romantic shadow-glow"
             onClick={onPlanDate}
           >
             <Calendar className="w-4 h-4 mr-2" />
             Plan a Date
           </Button>
-        </motion.div>
-      </div>
-    </Card>
-  );
-};
-
-const MatchFactorBar = ({ factor }: { factor: MatchFactor }) => {
-  const percentage = (factor.score / factor.maxScore) * 100;
-  
-  return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-sm">
-        <span className="flex items-center gap-2">
-          <span>{factor.icon}</span>
-          <span className="font-medium">{factor.name}</span>
-        </span>
-        <span className="text-muted-foreground">{factor.score}/{factor.maxScore}</span>
-      </div>
-      <div className="h-2 bg-muted rounded-full overflow-hidden">
-        <motion.div 
-          className="h-full bg-gradient-romantic rounded-full"
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        />
-      </div>
-      <p className="text-xs text-muted-foreground italic">{factor.description}</p>
-    </div>
+        </div>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -799,10 +855,10 @@ const LoadingState = () => {
       elapsed += 50;
       setProgress((elapsed / totalDuration) * 100);
       
-      let cumulative = 0;
+      let accumulatedTime = 0;
       for (let i = 0; i < LOADING_STEPS.length; i++) {
-        cumulative += LOADING_STEPS[i].duration;
-        if (elapsed < cumulative) {
+        accumulatedTime += LOADING_STEPS[i].duration;
+        if (elapsed < accumulatedTime) {
           setCurrentStep(i);
           break;
         }
@@ -815,67 +871,43 @@ const LoadingState = () => {
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center px-4">
       <motion.div 
-        className="text-center max-w-md w-full"
+        className="text-center max-w-md"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <div className="relative w-32 h-32 mx-auto mb-8">
-          <motion.div 
-            className="absolute inset-0 rounded-full bg-gradient-to-r from-primary to-secondary opacity-20"
-            animate={{ scale: [1, 1.5, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          />
-          <motion.div 
-            className="absolute inset-4 rounded-full bg-gradient-to-r from-primary to-secondary opacity-30"
-            animate={{ scale: [1, 1.3, 1] }}
-            transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
-          />
-          <motion.div 
-            className="absolute inset-8 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center shadow-xl"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          >
-            <Heart className="w-10 h-10 text-primary-foreground" fill="currentColor" />
-          </motion.div>
-        </div>
-        
-        <motion.h2 
-          className="font-display text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-          animate={{ opacity: [0.5, 1, 0.5] }}
+        {/* Animated Logo */}
+        <motion.div 
+          className="relative w-32 h-32 mx-auto mb-8"
+          animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          Finding Your Perfect Matches
-        </motion.h2>
+          <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" />
+          <div className="absolute inset-4 rounded-full bg-primary/30 animate-ping" style={{ animationDelay: '0.3s' }} />
+          <div className="absolute inset-8 rounded-full bg-gradient-romantic flex items-center justify-center shadow-glow">
+            <Heart className="w-8 h-8 text-primary-foreground" fill="currentColor" />
+          </div>
+        </motion.div>
+
+        <h2 className="font-display text-2xl font-bold mb-4">Finding Your Matches</h2>
         
-        <div className="h-8 mb-4">
-          <AnimatePresence mode="wait">
-            <motion.p 
-              key={currentStep}
-              className="text-muted-foreground"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-            >
-              {LOADING_STEPS[currentStep]?.text}
-            </motion.p>
-          </AnimatePresence>
+        {/* Loading Text */}
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={currentStep}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="text-muted-foreground mb-6 h-6"
+          >
+            {LOADING_STEPS[currentStep]?.text}
+          </motion.p>
+        </AnimatePresence>
+
+        {/* Progress Bar */}
+        <div className="w-full max-w-xs mx-auto">
+          <Progress value={progress} className="h-2" />
+          <p className="text-xs text-muted-foreground mt-2">{Math.round(progress)}% complete</p>
         </div>
-        
-        <div className="w-full bg-muted rounded-full h-3 overflow-hidden">
-          <motion.div 
-            className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-          />
-        </div>
-        
-        <motion.p 
-          className="text-xs text-muted-foreground mt-4"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          Good things take time... unlike microwave meals 🍿
-        </motion.p>
       </motion.div>
     </div>
   );
