@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowRight, Video, ArrowLeft, Instagram, Linkedin, Sparkles, Check, Loader2 } from 'lucide-react';
+import { Heart, ArrowRight, Video, ArrowLeft, Instagram, Linkedin, Sparkles, Check, Loader2, Star, MapPin, Scan } from 'lucide-react';
 import { toast } from 'sonner';
 import VideoEmotionCapture, { EmotionData, PersonaResult, generatePersonaFromEmotions } from '@/components/VideoEmotionCapture';
 import PersonaDisplay from '@/components/PersonaDisplay';
@@ -283,6 +283,42 @@ const [formData, setFormData] = useState<ProfileFormData>({
               <CardDescription className="text-base">Connect your socials and let AI understand you better</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
+              {/* Feature Highlights */}
+              <div className="grid gap-3 md:grid-cols-3 pb-6 border-b">
+                <div className="relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-violet-500/10 via-purple-500/5 to-fuchsia-500/10 border border-violet-500/20 group hover:border-violet-500/40 transition-all">
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-violet-500/10 rounded-full blur-xl group-hover:bg-violet-500/20 transition-all" />
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-3 shadow-lg shadow-violet-500/25">
+                      <Star className="w-5 h-5 text-white" />
+                    </div>
+                    <h4 className="font-display font-bold text-sm mb-1">Zodiac Matching</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">AI-powered astrology compatibility analysis with playful roast mode</p>
+                  </div>
+                </div>
+                
+                <div className="relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-rose-500/10 via-pink-500/5 to-orange-500/10 border border-rose-500/20 group hover:border-rose-500/40 transition-all">
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-rose-500/10 rounded-full blur-xl group-hover:bg-rose-500/20 transition-all" />
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500 to-orange-500 flex items-center justify-center mb-3 shadow-lg shadow-rose-500/25">
+                      <MapPin className="w-5 h-5 text-white" />
+                    </div>
+                    <h4 className="font-display font-bold text-sm mb-1">Smart Date Planner</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">AI generates personalized date plans with real venues & witty invite texts</p>
+                  </div>
+                </div>
+                
+                <div className="relative overflow-hidden p-4 rounded-2xl bg-gradient-to-br from-cyan-500/10 via-teal-500/5 to-emerald-500/10 border border-cyan-500/20 group hover:border-cyan-500/40 transition-all">
+                  <div className="absolute -top-4 -right-4 w-16 h-16 bg-cyan-500/10 rounded-full blur-xl group-hover:bg-cyan-500/20 transition-all" />
+                  <div className="relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center mb-3 shadow-lg shadow-cyan-500/25">
+                      <Scan className="w-5 h-5 text-white" />
+                    </div>
+                    <h4 className="font-display font-bold text-sm mb-1">Visual Persona AI</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed">Live emotion detection reveals your authentic personality type</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Avatar Section */}
               <div className="pb-4 border-b">
                 <h3 className="font-display font-semibold mb-2">Create Your Avatar</h3>
