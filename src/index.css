@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,52 +6,72 @@
 
 @layer base {
   :root {
-    --background: 60 30% 96%;
-    --foreground: 150 30% 15%;
-    --card: 60 20% 98%;
-    --card-foreground: 150 30% 15%;
-    --popover: 60 20% 98%;
-    --popover-foreground: 150 30% 15%;
-    --primary: 150 60% 40%;
-    --primary-foreground: 60 30% 98%;
-    --secondary: 340 70% 65%;
-    --secondary-foreground: 60 30% 98%;
-    --muted: 150 20% 90%;
-    --muted-foreground: 150 15% 45%;
-    --accent: 150 40% 85%;
-    --accent-foreground: 150 30% 20%;
+    /* Premium Matcha-inspired palette */
+    --background: 80 20% 98%;
+    --foreground: 160 40% 8%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 160 40% 8%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 160 40% 8%;
+    
+    --primary: 152 60% 42%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 352 80% 65%;
+    --secondary-foreground: 352 80% 15%;
+    
+    --muted: 80 10% 94%;
+    --muted-foreground: 160 10% 45%;
+    
+    --accent: 152 40% 92%;
+    --accent-foreground: 152 60% 30%;
+    
     --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 150 20% 85%;
-    --input: 150 20% 85%;
-    --ring: 150 60% 40%;
-    --radius: 1rem;
-    --matcha: 150 60% 40%;
-    --matcha-light: 150 50% 75%;
-    --rose: 340 70% 65%;
-    --rose-light: 340 60% 85%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 160 15% 88%;
+    --input: 160 15% 88%;
+    --ring: 152 60% 42%;
+    
+    --radius: 0.75rem;
+    
+    /* Extended Matcha palette */
+    --matcha: 152 60% 42%;
+    --matcha-light: 152 50% 75%;
+    --rose: 352 80% 65%;
+    --rose-light: 352 70% 92%;
   }
 
   .dark {
-    --background: 150 30% 8%;
-    --foreground: 60 20% 95%;
-    --card: 150 25% 12%;
-    --card-foreground: 60 20% 95%;
-    --popover: 150 25% 12%;
-    --popover-foreground: 60 20% 95%;
-    --primary: 150 55% 50%;
-    --primary-foreground: 150 30% 10%;
-    --secondary: 340 60% 60%;
-    --secondary-foreground: 60 20% 95%;
-    --muted: 150 20% 18%;
-    --muted-foreground: 150 15% 60%;
-    --accent: 150 30% 20%;
-    --accent-foreground: 150 40% 80%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 150 20% 20%;
-    --input: 150 20% 20%;
-    --ring: 150 55% 50%;
+    --background: 160 25% 6%;
+    --foreground: 80 15% 95%;
+    
+    --card: 160 20% 10%;
+    --card-foreground: 80 15% 95%;
+    
+    --popover: 160 20% 10%;
+    --popover-foreground: 80 15% 95%;
+    
+    --primary: 152 55% 48%;
+    --primary-foreground: 160 30% 5%;
+    
+    --secondary: 352 65% 55%;
+    --secondary-foreground: 352 80% 95%;
+    
+    --muted: 160 15% 15%;
+    --muted-foreground: 160 10% 55%;
+    
+    --accent: 152 30% 18%;
+    --accent-foreground: 152 50% 75%;
+    
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 160 15% 18%;
+    --input: 160 15% 18%;
+    --ring: 152 55% 48%;
   }
 }
 
@@ -71,23 +91,69 @@
 @layer utilities {
   .text-gradient-matcha {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(150 60% 40%) 0%, hsl(150 50% 55%) 100%);
+    background-image: linear-gradient(135deg, hsl(152 65% 40%) 0%, hsl(142 55% 55%) 50%, hsl(152 60% 45%) 100%);
   }
+  
   .bg-gradient-hero {
-    background-image: linear-gradient(135deg, hsl(150 50% 75% / 0.3) 0%, hsl(340 60% 85% / 0.3) 50%, hsl(60 30% 96%) 100%);
+    background: 
+      radial-gradient(ellipse at 20% 20%, hsl(152 50% 75% / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, hsl(352 70% 85% / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(152 40% 90% / 0.1) 0%, transparent 70%),
+      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(80 20% 96%) 100%);
   }
+  
   .shadow-soft {
-    box-shadow: 0 4px 20px -4px hsl(150 30% 30% / 0.15);
+    box-shadow: 
+      0 4px 6px -1px hsl(152 30% 30% / 0.08),
+      0 10px 20px -5px hsl(152 30% 30% / 0.1);
   }
+  
   .shadow-glow {
-    box-shadow: 0 0 40px hsl(150 60% 40% / 0.2);
+    box-shadow: 
+      0 0 20px hsl(152 60% 42% / 0.25),
+      0 0 60px hsl(152 60% 42% / 0.15);
   }
+  
   .animate-float {
     animation: float 6s ease-in-out infinite;
+  }
+  
+  .font-display {
+    font-family: 'Space Grotesk', sans-serif;
   }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  25% { 
+    transform: translateY(-10px) rotate(1deg); 
+  }
+  50% { 
+    transform: translateY(-20px) rotate(0deg); 
+  }
+  75% { 
+    transform: translateY(-10px) rotate(-1deg); 
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
