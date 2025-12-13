@@ -9,13 +9,23 @@ import { Heart, ArrowRight, Video, ArrowLeft, Instagram, Linkedin, Sparkles, Che
 import { toast } from 'sonner';
 import VideoEmotionCapture, { EmotionData, PersonaResult, generatePersonaFromEmotions } from '@/components/VideoEmotionCapture';
 import PersonaDisplay from '@/components/PersonaDisplay';
+import AvatarSelector from '@/components/AvatarSelector';
 
 interface ProfileFormData {
   name: string;
   age: string;
+  birthDate: string;
   location: string;
   sex: string;
   orientation: string;
+  height: string;
+  diet: string;
+  drinking: string;
+  smoking: string;
+  zodiacSign: string;
+  lookingFor: string;
+  bio: string;
+  avatar: string;
   instagramUrl: string;
   linkedinUrl: string;
   interests: string[];
@@ -90,16 +100,61 @@ const Profile = () => {
     linkedin?: SocialProfile;
   }>({});
   
-  const [formData, setFormData] = useState<ProfileFormData>({
+const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
     age: '',
+    birthDate: '',
     location: '',
     sex: '',
     orientation: '',
+    height: '',
+    diet: '',
+    drinking: '',
+    smoking: '',
+    zodiacSign: '',
+    lookingFor: '',
+    bio: '',
+    avatar: 'style1-none',
     instagramUrl: '',
     linkedinUrl: '',
     interests: [],
   });
+
+  // Calculate zodiac sign from birth date
+  const calculateZodiac = (dateStr: string): string => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    
+    if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return 'Aries ♈';
+    if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return 'Taurus ♉';
+    if ((month === 5 && day >= 21) || (month === 6 && day <= 20)) return 'Gemini ♊';
+    if ((month === 6 && day >= 21) || (month === 7 && day <= 22)) return 'Cancer ♋';
+    if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return 'Leo ♌';
+    if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return 'Virgo ♍';
+    if ((month === 9 && day >= 23) || (month === 10 && day <= 22)) return 'Libra ♎';
+    if ((month === 10 && day >= 23) || (month === 11 && day <= 21)) return 'Scorpio ♏';
+    if ((month === 11 && day >= 22) || (month === 12 && day <= 21)) return 'Sagittarius ♐';
+    if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return 'Capricorn ♑';
+    if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return 'Aquarius ♒';
+    return 'Pisces ♓';
+  };
+
+  const handleBirthDateChange = (value: string) => {
+    updateField('birthDate', value);
+    const zodiac = calculateZodiac(value);
+    updateField('zodiacSign', zodiac);
+    // Calculate age
+    const today = new Date();
+    const birth = new Date(value);
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    updateField('age', age.toString());
+  };
 
   const updateField = (field: keyof ProfileFormData, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -222,6 +277,19 @@ const Profile = () => {
               <CardDescription className="text-base">Link your socials and we'll understand you better than any questionnaire</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
+              {/* Avatar Section */}
+              <div className="pb-4 border-b">
+                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                  <span className="text-lg">🎨</span> Create Your Avatar
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4 italic">"First impressions matter... make yours unforgettable 💅"</p>
+                <AvatarSelector 
+                  value={formData.avatar} 
+                  onChange={v => updateField('avatar', v)} 
+                  sex={formData.sex}
+                />
+              </div>
+
               {/* Basic Info */}
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
@@ -235,6 +303,22 @@ const Profile = () => {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="birthdate">Birthday *</Label>
+                  <Input 
+                    id="birthdate" 
+                    type="date"
+                    value={formData.birthDate}
+                    onChange={e => handleBirthDateChange(e.target.value)}
+                    className="bg-background"
+                  />
+                  {formData.zodiacSign && (
+                    <p className="text-xs text-primary">{formData.zodiacSign} • {formData.age} years old</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
                   <Label>Location *</Label>
                   <Select value={formData.location} onValueChange={v => updateField('location', v)}>
                     <SelectTrigger className="bg-background">
@@ -245,6 +329,25 @@ const Profile = () => {
                       <SelectItem value="Oakland">Oakland</SelectItem>
                       <SelectItem value="Berkeley">Berkeley</SelectItem>
                       <SelectItem value="San Jose">San Jose</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Height</Label>
+                  <Select value={formData.height} onValueChange={v => updateField('height', v)}>
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder="Optional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="5ft0 (152cm)">5'0" (152cm)</SelectItem>
+                      <SelectItem value="5ft2 (157cm)">5'2" (157cm)</SelectItem>
+                      <SelectItem value="5ft4 (163cm)">5'4" (163cm)</SelectItem>
+                      <SelectItem value="5ft6 (168cm)">5'6" (168cm)</SelectItem>
+                      <SelectItem value="5ft8 (173cm)">5'8" (173cm)</SelectItem>
+                      <SelectItem value="5ft10 (178cm)">5'10" (178cm)</SelectItem>
+                      <SelectItem value="6ft0 (183cm)">6'0" (183cm)</SelectItem>
+                      <SelectItem value="6ft2 (188cm)">6'2" (188cm)</SelectItem>
+                      <SelectItem value="6ft4+ (193cm+)">6'4"+ (193cm+)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -277,6 +380,93 @@ const Profile = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Relationship Goals */}
+              <div className="space-y-2">
+                <Label>What are you looking for?</Label>
+                <Select value={formData.lookingFor} onValueChange={v => updateField('lookingFor', v)}>
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder="Select your vibe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="serious">💍 Something serious</SelectItem>
+                    <SelectItem value="casual">🎉 Something casual</SelectItem>
+                    <SelectItem value="friends">🤝 New friends</SelectItem>
+                    <SelectItem value="unsure">🤷 Still figuring it out</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Lifestyle Section */}
+              <div className="pt-4 border-t">
+                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                  <span className="text-lg">🌱</span> Lifestyle (Optional)
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4 italic">"Help us find someone who vibes with your lifestyle 🍃"</p>
+                
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label>Diet</Label>
+                    <Select value={formData.diet} onValueChange={v => updateField('diet', v)}>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="anything">🍔 Anything goes</SelectItem>
+                        <SelectItem value="vegetarian">🥗 Vegetarian</SelectItem>
+                        <SelectItem value="vegan">🌱 Vegan</SelectItem>
+                        <SelectItem value="pescatarian">🐟 Pescatarian</SelectItem>
+                        <SelectItem value="keto">🥩 Keto</SelectItem>
+                        <SelectItem value="halal">☪️ Halal</SelectItem>
+                        <SelectItem value="kosher">✡️ Kosher</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Drinking</Label>
+                    <Select value={formData.drinking} onValueChange={v => updateField('drinking', v)}>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="never">🚫 Never</SelectItem>
+                        <SelectItem value="rarely">🍷 Rarely</SelectItem>
+                        <SelectItem value="socially">🥂 Socially</SelectItem>
+                        <SelectItem value="regularly">🍻 Regularly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Smoking</Label>
+                    <Select value={formData.smoking} onValueChange={v => updateField('smoking', v)}>
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="never">🚭 Never</SelectItem>
+                        <SelectItem value="sometimes">💨 Sometimes</SelectItem>
+                        <SelectItem value="regularly">🚬 Regularly</SelectItem>
+                        <SelectItem value="420">🌿 420 friendly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-2">
+                <Label>About You (Optional)</Label>
+                <textarea
+                  value={formData.bio}
+                  onChange={e => updateField('bio', e.target.value)}
+                  placeholder="Give us your elevator pitch... but make it flirty 😏"
+                  className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+                  maxLength={300}
+                />
+                <p className="text-xs text-muted-foreground text-right">{formData.bio.length}/300</p>
               </div>
 
               {/* Social Media Links */}
@@ -566,13 +756,45 @@ const Profile = () => {
               {/* Profile Summary */}
               <div className="p-6 rounded-2xl bg-muted/50 border border-border/50">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-emerald-400 flex items-center justify-center text-3xl">
+                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
+                    formData.avatar.startsWith('style2') ? 'from-rose-500 to-orange-400' :
+                    formData.avatar.startsWith('style3') ? 'from-cyan-500 to-blue-500' :
+                    formData.avatar.startsWith('style4') ? 'from-emerald-500 to-teal-500' :
+                    formData.avatar.startsWith('style5') ? 'from-amber-500 to-pink-500' :
+                    formData.avatar.startsWith('style6') ? 'from-indigo-500 to-purple-500' :
+                    'from-violet-500 to-fuchsia-500'
+                  } flex items-center justify-center text-3xl shadow-lg`}>
                     {formData.sex === 'female' ? '👩' : formData.sex === 'male' ? '👨' : '🧑'}
                   </div>
                   <div>
                     <h3 className="font-display text-xl font-bold">{formData.name || 'Your Name'}</h3>
-                    <p className="text-muted-foreground">{formData.location}</p>
+                    <p className="text-muted-foreground">{formData.location} {formData.age && `• ${formData.age}`}</p>
+                    {formData.zodiacSign && <p className="text-xs text-primary">{formData.zodiacSign}</p>}
                   </div>
+                </div>
+
+                {/* Additional Details */}
+                <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
+                  {formData.height && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span>📏</span> {formData.height}
+                    </div>
+                  )}
+                  {formData.diet && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span>🍽️</span> {formData.diet}
+                    </div>
+                  )}
+                  {formData.drinking && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span>🍷</span> {formData.drinking}
+                    </div>
+                  )}
+                  {formData.lookingFor && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span>💕</span> {formData.lookingFor}
+                    </div>
+                  )}
                 </div>
 
                 {/* Connected Socials */}
