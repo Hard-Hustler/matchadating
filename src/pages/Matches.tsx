@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Sparkles, Calendar, ArrowLeft } from 'lucide-react';
+import { Heart, MapPin, Sparkles, Calendar, ArrowLeft, Users } from 'lucide-react';
 import { generateMatches, MatchResult } from '@/data/mockMatching';
 import { toast } from 'sonner';
 
@@ -67,7 +67,7 @@ const Matches = () => {
           Your Top Matches
         </h1>
         <p className="text-muted-foreground">
-          AI has analyzed compatibility across personality, values, and interests
+          AI has analyzed compatibility across personality, values, interests, and emotional persona
         </p>
       </div>
 
@@ -95,7 +95,7 @@ const MatchCard = ({
   rank: number;
   onPlanDate: () => void;
 }) => {
-  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles } = match;
+  const { profile, compatibilityScore, reasoning, commonValues, distanceMiles, personaMatch } = match;
   
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'bg-primary text-primary-foreground';
@@ -104,6 +104,12 @@ const MatchCard = ({
   };
 
   const getInitials = (name: string) => name.slice(0, 2).toUpperCase();
+  
+  const getPersonaBonusLabel = (bonus: number) => {
+    if (bonus >= 10) return { label: 'Perfect Match', color: 'bg-primary text-primary-foreground' };
+    if (bonus >= 7) return { label: 'Great Match', color: 'bg-green-500 text-white' };
+    return { label: 'Compatible', color: 'bg-muted text-muted-foreground' };
+  };
 
   return (
     <Card className="overflow-hidden border-border/50 hover:border-primary/30 transition-all hover:shadow-soft group">
@@ -132,6 +138,17 @@ const MatchCard = ({
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
           {profile.bio}
         </p>
+
+        {/* Persona Match Badge */}
+        {personaMatch && (
+          <div className="flex items-center gap-2 mb-4">
+            <Users className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">{personaMatch.matchType}</span>
+            <Badge className={`text-xs ${getPersonaBonusLabel(personaMatch.bonus).color}`}>
+              {getPersonaBonusLabel(personaMatch.bonus).label}
+            </Badge>
+          </div>
+        )}
 
         {/* AI Reasoning */}
         <div className="bg-primary/5 rounded-xl p-4 mb-4">
