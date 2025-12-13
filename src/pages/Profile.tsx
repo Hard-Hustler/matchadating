@@ -473,10 +473,14 @@ const [formData, setFormData] = useState<ProfileFormData>({
 
               {/* Social Media Links */}
               <div className="pt-4 border-t">
-                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+                <h3 className="font-display font-semibold mb-2 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-primary" />
                   Connect Your Profiles
                 </h3>
+                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1.5">
+                  <span className="inline-block w-3 h-3 rounded-full bg-primary/20 flex items-center justify-center text-[8px]">🔒</span>
+                  Your social links are encrypted and never shared with other users unless you grant permission.
+                </p>
                 
                 {/* Instagram */}
                 <div className="space-y-3 mb-4">
