@@ -51,10 +51,17 @@ serve(async (req) => {
     }
 
     const aiResponse = await response.json();
+    console.log('AI Response structure:', JSON.stringify(aiResponse, null, 2).slice(0, 500));
+    
     const imageUrl = aiResponse.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
     if (!imageUrl) {
-      throw new Error('No image in AI response');
+      console.log('No image found, using fallback placeholder');
+      // Return a themed placeholder based on venue type
+      const placeholderUrl = `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80`;
+      return new Response(JSON.stringify({ imageUrl: placeholderUrl, isPlaceholder: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     return new Response(JSON.stringify({ imageUrl }), {
@@ -63,10 +70,14 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error generating venue image:', error);
+    // Return placeholder on error instead of failing
+    const placeholderUrl = `https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80`;
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Failed to generate image' 
+      imageUrl: placeholderUrl,
+      isPlaceholder: true,
+      originalError: error instanceof Error ? error.message : 'Failed to generate image'
     }), {
-      status: 500,
+      status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
