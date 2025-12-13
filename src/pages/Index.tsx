@@ -69,11 +69,11 @@ const Index = () => {
               transition={{ delay: 0.3, duration: 0.8 }}
             >
               <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
-                The dating app
+                Where AI finds
                 <br />
-                <span className="text-gradient-love">designed to be</span>
+                <span className="text-gradient-love">your perfect</span>
                 <br />
-                deleted.
+                match.
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg mb-8">
                 AI-powered matching that understands who you really are. No endless swiping—just meaningful connections.
