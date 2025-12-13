@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,11 +11,12 @@ import { Switch } from '@/components/ui/switch';
 import { 
   Heart, ArrowLeft, MapPin, Clock, Copy, Check, Sparkles, 
   Calendar, DollarSign, Zap, Coffee, Star, AlertTriangle,
-  MessageCircle, Shield, ExternalLink, Loader2, RefreshCw
+  MessageCircle, Shield, ExternalLink, Loader2, RefreshCw, ImageIcon
 } from 'lucide-react';
 import { getProfileById } from '@/data/mockProfiles';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { MatchingAnimation } from '@/components/MatchingAnimation';
 
 interface TimelineItem {
   time: string;
@@ -62,12 +63,14 @@ const LOADING_MESSAGES = [
 
 const DatePlanPage = () => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'input' | 'loading' | 'results'>('input');
+  const [step, setStep] = useState<'matching' | 'input' | 'loading' | 'results'>('input');
+  const [showMatchingAnimation, setShowMatchingAnimation] = useState(false);
   const [datePlans, setDatePlans] = useState<DatePlanResponse | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number>(0);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [loadingMessage, setLoadingMessage] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [venueImages, setVenueImages] = useState<Record<string, string>>({});
 
   // Form state
   const [city, setCity] = useState('San Francisco');
@@ -87,6 +90,8 @@ const DatePlanPage = () => {
   // Get match info
   const [userName, setUserName] = useState('You');
   const [partnerName, setPartnerName] = useState('Your Match');
+  const [userImage, setUserImage] = useState<string | undefined>();
+  const [partnerImage, setPartnerImage] = useState<string | undefined>();
 
   useEffect(() => {
     const userProfile = localStorage.getItem('matchaUserProfile');
@@ -96,6 +101,7 @@ const DatePlanPage = () => {
       const user = JSON.parse(userProfile);
       setUserName(user.name || 'You');
       if (user.birthDate) setUserBirthDate(user.birthDate);
+      if (user.profileImage) setUserImage(user.profileImage);
     }
 
     if (matchId) {
@@ -103,6 +109,7 @@ const DatePlanPage = () => {
       if (match) {
         setPartnerName(match.name);
         if (match.birthDate) setPartnerBirthDate(match.birthDate);
+        if (match.profileImage) setPartnerImage(match.profileImage);
       }
     }
   }, []);
@@ -116,7 +123,31 @@ const DatePlanPage = () => {
     }
   }, [step]);
 
+  const generateVenueImage = useCallback(async (venue: string, venueCity: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-venue-image', {
+        body: { venue, city: venueCity, vibe }
+      });
+      
+      if (error || data?.error) {
+        console.error('Error generating venue image:', error || data?.error);
+        return null;
+      }
+      
+      return data?.imageUrl || null;
+    } catch (err) {
+      console.error('Failed to generate venue image:', err);
+      return null;
+    }
+  }, [vibe]);
+
   const generateDatePlan = async () => {
+    // Show matching animation first
+    setShowMatchingAnimation(true);
+  };
+
+  const handleMatchingComplete = async () => {
+    setShowMatchingAnimation(false);
     setStep('loading');
     setError(null);
 
@@ -153,6 +184,17 @@ const DatePlanPage = () => {
       setSelectedPlan(0);
       setStep('results');
       toast.success('Your fate has been generated!');
+
+      // Generate images for first 2 venues (to save API calls)
+      if (data.plans?.[0]?.timeline) {
+        const venuesToGenerate = data.plans[0].timeline.slice(0, 2);
+        for (const item of venuesToGenerate) {
+          const imageUrl = await generateVenueImage(item.venue, city);
+          if (imageUrl) {
+            setVenueImages(prev => ({ ...prev, [item.venue]: imageUrl }));
+          }
+        }
+      }
     } catch (err) {
       console.error('Error generating date plan:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate date plan');
@@ -172,6 +214,18 @@ const DatePlanPage = () => {
     window.open(`https://www.google.com/maps/search/${encodeURIComponent(query)}`, '_blank');
   };
 
+  if (showMatchingAnimation) {
+    return (
+      <MatchingAnimation
+        userName={userName}
+        partnerName={partnerName}
+        userImage={userImage}
+        partnerImage={partnerImage}
+        onComplete={handleMatchingComplete}
+      />
+    );
+  }
+
   if (step === 'loading') {
     return <LoadingState message={LOADING_MESSAGES[loadingMessage]} />;
   }
@@ -189,6 +243,11 @@ const DatePlanPage = () => {
         onRegenerate={generateDatePlan}
         userName={userName}
         partnerName={partnerName}
+        venueImages={venueImages}
+        city={city}
+        vibe={vibe}
+        onGenerateImage={generateVenueImage}
+        setVenueImages={setVenueImages}
       />
     );
   }
@@ -488,6 +547,11 @@ interface ResultsViewProps {
   onRegenerate: () => void;
   userName: string;
   partnerName: string;
+  venueImages: Record<string, string>;
+  city: string;
+  vibe: string;
+  onGenerateImage: (venue: string, city: string) => Promise<string | null>;
+  setVenueImages: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 }
 
 const ResultsView = ({
@@ -500,9 +564,24 @@ const ResultsView = ({
   onBack,
   onRegenerate,
   userName,
-  partnerName
+  partnerName,
+  venueImages,
+  city,
+  vibe,
+  onGenerateImage,
+  setVenueImages
 }: ResultsViewProps) => {
+  const [generatingImage, setGeneratingImage] = useState<string | null>(null);
   const plan = datePlans.plans[selectedPlan];
+
+  const handleGenerateImage = async (venue: string) => {
+    setGeneratingImage(venue);
+    const imageUrl = await onGenerateImage(venue, city);
+    if (imageUrl) {
+      setVenueImages(prev => ({ ...prev, [venue]: imageUrl }));
+    }
+    setGeneratingImage(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-hero py-8 px-4">
@@ -586,6 +665,45 @@ const ResultsView = ({
                         <ExternalLink className="w-3 h-3" />
                       </button>
                       <p className="text-sm text-muted-foreground mt-2">{item.description}</p>
+                      
+                      {/* Venue Image */}
+                      {index < 2 && (
+                        <div className="mt-3">
+                          {venueImages[item.venue] ? (
+                            <div className="relative w-full h-32 rounded-xl overflow-hidden border border-border/50">
+                              <img 
+                                src={venueImages[item.venue]} 
+                                alt={item.venue}
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+                              <Badge className="absolute bottom-2 left-2 bg-background/80 text-foreground text-xs">
+                                AI Generated Preview
+                              </Badge>
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleGenerateImage(item.venue)}
+                              disabled={generatingImage === item.venue}
+                              className="text-xs"
+                            >
+                              {generatingImage === item.venue ? (
+                                <>
+                                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                                  Generating...
+                                </>
+                              ) : (
+                                <>
+                                  <ImageIcon className="w-3 h-3 mr-1" />
+                                  Generate Preview
+                                </>
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
