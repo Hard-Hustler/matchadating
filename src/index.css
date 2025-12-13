@@ -6,74 +6,74 @@
 
 @layer base {
   :root {
-    /* Dark Elegant Palette */
-    --background: 240 10% 8%;
+    /* Dark Elegant Green/Purple Palette */
+    --background: 220 15% 8%;
     --foreground: 0 0% 95%;
     
-    --card: 240 10% 12%;
+    --card: 220 15% 12%;
     --card-foreground: 0 0% 95%;
     
-    --popover: 240 10% 12%;
+    --popover: 220 15% 12%;
     --popover-foreground: 0 0% 95%;
     
-    --primary: 340 75% 55%;
+    --primary: 160 60% 45%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 280 55% 50%;
+    --secondary: 270 50% 55%;
     --secondary-foreground: 0 0% 100%;
     
-    --muted: 240 10% 18%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 220 15% 18%;
+    --muted-foreground: 220 10% 55%;
     
-    --accent: 340 30% 20%;
-    --accent-foreground: 340 70% 80%;
+    --accent: 160 30% 20%;
+    --accent-foreground: 160 50% 75%;
     
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 240 10% 20%;
-    --input: 240 10% 20%;
-    --ring: 340 75% 55%;
+    --border: 220 15% 20%;
+    --input: 220 15% 20%;
+    --ring: 160 60% 45%;
     
     --radius: 1rem;
     
-    /* Extended Love Palette */
-    --love-pink: 340 75% 55%;
-    --love-pink-light: 340 50% 35%;
-    --love-purple: 280 55% 50%;
-    --love-purple-light: 280 40% 35%;
-    --love-coral: 15 70% 50%;
-    --love-gold: 40 80% 50%;
+    /* Extended Palette */
+    --love-pink: 160 60% 45%;
+    --love-pink-light: 160 40% 35%;
+    --love-purple: 270 50% 55%;
+    --love-purple-light: 270 40% 35%;
+    --love-coral: 160 50% 50%;
+    --love-gold: 45 80% 50%;
   }
 
   .dark {
-    --background: 240 10% 4%;
+    --background: 220 15% 4%;
     --foreground: 0 0% 95%;
     
-    --card: 240 10% 8%;
+    --card: 220 15% 8%;
     --card-foreground: 0 0% 95%;
     
-    --popover: 240 10% 8%;
+    --popover: 220 15% 8%;
     --popover-foreground: 0 0% 95%;
     
-    --primary: 340 75% 55%;
+    --primary: 160 60% 45%;
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 280 55% 50%;
+    --secondary: 270 50% 55%;
     --secondary-foreground: 0 0% 100%;
     
-    --muted: 240 10% 15%;
-    --muted-foreground: 240 5% 50%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 220 10% 50%;
     
-    --accent: 340 30% 18%;
-    --accent-foreground: 340 70% 80%;
+    --accent: 160 30% 18%;
+    --accent-foreground: 160 50% 75%;
     
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 240 10% 18%;
-    --input: 240 10% 18%;
-    --ring: 340 75% 55%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 160 60% 45%;
   }
 }
 
@@ -93,19 +93,19 @@
 @layer utilities {
   .text-gradient-love {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(340 75% 55%) 0%, hsl(280 55% 50%) 50%, hsl(340 65% 60%) 100%);
+    background-image: linear-gradient(135deg, hsl(160 60% 45%) 0%, hsl(270 50% 55%) 50%, hsl(160 50% 50%) 100%);
   }
   
   .bg-gradient-hero {
     background: 
-      radial-gradient(ellipse at 20% 20%, hsl(340 60% 30% / 0.2) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, hsl(280 50% 30% / 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 100%, hsl(15 60% 30% / 0.1) 0%, transparent 50%),
-      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(240 10% 6%) 100%);
+      radial-gradient(ellipse at 20% 20%, hsl(160 50% 25% / 0.2) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, hsl(270 40% 30% / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, hsl(160 40% 25% / 0.1) 0%, transparent 50%),
+      linear-gradient(180deg, hsl(var(--background)) 0%, hsl(220 15% 6%) 100%);
   }
   
   .bg-gradient-romantic {
-    background: linear-gradient(135deg, hsl(340 75% 55%) 0%, hsl(280 55% 50%) 100%);
+    background: linear-gradient(135deg, hsl(160 60% 45%) 0%, hsl(270 50% 55%) 100%);
   }
   
   .shadow-soft {
@@ -116,14 +116,14 @@
   
   .shadow-glow {
     box-shadow: 
-      0 0 20px hsl(340 75% 55% / 0.4),
-      0 0 60px hsl(340 75% 55% / 0.2);
+      0 0 20px hsl(160 60% 45% / 0.4),
+      0 0 60px hsl(160 60% 45% / 0.2);
   }
   
   .shadow-glow-purple {
     box-shadow: 
-      0 0 20px hsl(280 55% 50% / 0.4),
-      0 0 60px hsl(280 55% 50% / 0.2);
+      0 0 20px hsl(270 50% 55% / 0.4),
+      0 0 60px hsl(270 50% 55% / 0.2);
   }
   
   .animate-float {
@@ -206,10 +206,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(340 75% 55% / 0.4);
+  background: hsl(160 60% 45% / 0.4);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(340 75% 55% / 0.6);
+  background: hsl(160 60% 45% / 0.6);
 }
