@@ -88,48 +88,74 @@ serve(async (req) => {
       roastMode = !compat.compatible;
       
       astrologyContext = roastMode 
-        ? `ROAST MODE ACTIVATED: ${data.userName} is a ${userSign} and ${data.partnerName} is a ${partnerSign}. These signs are notoriously INCOMPATIBLE. Be sarcastically skeptical about this date working out. Include witty zodiac-based roasts and warnings throughout the plan. Make jokes about their inevitable clashes.`
-        : `HYPE MODE: ${data.userName} is a ${userSign} and ${data.partnerName} is a ${partnerSign}. These signs are HIGHLY COMPATIBLE! Emphasize how cosmically aligned they are. Be enthusiastic about their zodiac chemistry.`;
+        ? `ROAST MODE ACTIVATED: ${data.userName} is a ${userSign} and ${data.partnerName} is a ${partnerSign}. These signs are notoriously INCOMPATIBLE. Be sarcastically skeptical about this date working out. Include witty zodiac-based roasts and warnings throughout the plan.`
+        : `HYPE MODE: ${data.userName} is a ${userSign} and ${data.partnerName} is a ${partnerSign}. These signs are HIGHLY COMPATIBLE! Emphasize how cosmically aligned they are.`;
     }
 
-    // Real NYC venue database for more realistic suggestions
-    const nycVenues = {
-      restaurants: {
-        romantic: ["Gramercy Tavern", "Le Bernardin", "Eleven Madison Park", "The River Café", "One if by Land, Two if by Sea", "Carbone", "Via Carota", "L'Artusi"],
-        casual: ["Joe's Pizza", "Katz's Delicatessen", "Shake Shack", "Russ & Daughters Cafe", "Xi'an Famous Foods", "Los Tacos No. 1", "Prince Street Pizza"],
-        trendy: ["Tatiana by Kwame Onwuachi", "Don Angie", "4 Charles Prime Rib", "Gage & Tollner", "Crown Shy", "Laser Wolf"],
-        brunch: ["Balthazar", "Sadelle's", "Jack's Wife Freda", "Cafe Mogador", "Egg Shop", "Clinton Street Baking Co."]
+    // City-specific venue databases
+    const venuesByCity: Record<string, any> = {
+      "New York": {
+        restaurants: ["Gramercy Tavern", "Le Bernardin", "Carbone", "Via Carota", "Joe's Pizza", "Katz's Delicatessen", "Don Angie", "Crown Shy"],
+        bars: ["Please Don't Tell (PDT)", "Death & Co", "Attaboy", "230 Fifth", "Westlight", "The Back Room"],
+        activities: ["The Met", "MoMA", "Whitney Museum", "The High Line", "Comedy Cellar", "Central Park", "Brooklyn Bridge Walk"],
+        neighborhoods: ["West Village", "SoHo", "Tribeca", "Williamsburg", "DUMBO", "Chelsea", "Lower East Side"]
       },
-      bars: {
-        speakeasy: ["Please Don't Tell (PDT)", "Death & Co", "Attaboy", "The Back Room", "Employees Only", "Angel's Share"],
-        rooftop: ["230 Fifth", "Westlight", "The Skylark", "Magic Hour Rooftop Bar", "Mr. Purple", "The Crown"],
-        wine: ["Terroir", "LaLou", "Corkbuzz Wine Studio", "The Four Horsemen", "Racines NY"]
+      "San Francisco": {
+        restaurants: ["State Bird Provisions", "Foreign Cinema", "Zuni Cafe", "Rich Table", "Kokkari Estiatorio", "La Taqueria", "Gary Danko", "Flour + Water"],
+        bars: ["Smuggler's Cove", "True Laurel", "ABV", "The Interval", "Trick Dog", "Bourbon & Branch"],
+        activities: ["SFMOMA", "de Young Museum", "Golden Gate Park", "Exploratorium", "Cobb's Comedy Club", "Dolores Park", "Ferry Building"],
+        neighborhoods: ["Mission District", "Hayes Valley", "North Beach", "Marina", "Castro", "SOMA", "Noe Valley", "Haight-Ashbury"]
       },
-      activities: {
-        cultural: ["The Met", "MoMA", "Whitney Museum", "The High Line", "Lincoln Center", "Brooklyn Museum", "Guggenheim"],
-        entertainment: ["Blue Note Jazz Club", "Comedy Cellar", "Sleep No More", "House of Yes", "Brooklyn Bowl", "Music Hall of Williamsburg"],
-        outdoor: ["Central Park Boathouse", "Brooklyn Bridge Walk", "DUMBO Waterfront", "The High Line", "Governors Island", "Prospect Park"],
-        unique: ["Meow Wolf (coming soon)", "Color Factory", "Spyscape", "The Seaport District", "Chelsea Market", "Smorgasburg"]
-      },
-      neighborhoods: ["West Village", "SoHo", "Tribeca", "Williamsburg", "DUMBO", "Chelsea", "Lower East Side", "East Village", "Harlem", "Upper West Side"]
+      "Los Angeles": {
+        restaurants: ["Bestia", "Republique", "Gjelina", "Providence", "Petit Trois", "Gjusta", "Osteria Mozza"],
+        bars: ["The Varnish", "Death & Co LA", "Bar Marmont", "Employees Only LA", "Thunderbolt"],
+        activities: ["LACMA", "The Getty", "Griffith Observatory", "The Broad", "Hollywood Bowl", "Venice Beach"],
+        neighborhoods: ["Silver Lake", "Arts District", "West Hollywood", "Venice", "Santa Monica", "Echo Park"]
+      }
     };
 
-    const systemPrompt = `You are a witty, sarcastic AI date planner with the personality of a brutally honest best friend who also happens to be a relationship expert. Your job is to create 3 unique, detailed date plans.
+    // Get venues for the city or use a generic prompt
+    const cityKey = Object.keys(venuesByCity).find(c => data.city.toLowerCase().includes(c.toLowerCase()));
+    const venues = cityKey ? venuesByCity[cityKey] : null;
+
+    const venueContext = venues 
+      ? `Here are some popular venues in ${data.city} you can use as inspiration: ${JSON.stringify(venues)}`
+      : `Research and use well-known, real venues in ${data.city}.`;
+
+    const systemPrompt = `You are a witty, sarcastic AI date planner. Create 3 unique, detailed date plans.
 
 ${astrologyContext}
 
-VENUE GUIDELINES - Use these REAL NYC venues:
-RESTAURANTS: ${JSON.stringify(nycVenues.restaurants)}
-BARS: ${JSON.stringify(nycVenues.bars)}
-ACTIVITIES: ${JSON.stringify(nycVenues.activities)}
-NEIGHBORHOODS: ${JSON.stringify(nycVenues.neighborhoods)}
+${venueContext}
 
-Use ONLY real venues from the lists above or other well-known establishments. Be creative and match their preferences. Always call the generate_date_plans function with your response.`;
+IMPORTANT: Use ONLY real, verified venues that exist in ${data.city}. Include actual addresses.
 
-    const userPrompt = `Create 3 unique date plans for ${data.userName} and ${data.partnerName}.
+You MUST respond with valid JSON in this exact format:
+{
+  "plans": [
+    {
+      "id": 1,
+      "title": "Creative plan name",
+      "theme": "One word theme",
+      "timeline": [
+        { "time": "7:00 PM", "activity": "Activity name", "venue": "Real venue", "address": "Real address", "description": "Why this works", "mapsQuery": "venue name city" }
+      ],
+      "whyItFits": "Why this plan matches their preferences",
+      "backupPlan": "Alternative if weather is bad",
+      "exitStrategy": "Witty excuse to leave early",
+      "estimatedCost": "$50-100"
+    }
+  ],
+  "inviteMessages": [
+    { "tone": "Smooth", "message": "Ready-to-send invite text" },
+    { "tone": "Direct", "message": "Ready-to-send invite text" },
+    { "tone": "Chaos", "message": "Chaotic/funny invite text" }
+  ],
+  "astrologyVerdict": "${data.useAstrology ? 'Zodiac compatibility verdict' : 'null'}"
+}`;
 
-DETAILS:
-- City: ${data.city} (USE ONLY REAL, VERIFIED VENUES)
+    const userPrompt = `Create 3 date plans in ${data.city} for ${data.userName} and ${data.partnerName}.
+
 - Time: ${data.timeWindow}
 - Occasion: ${data.occasion}
 - Vibe: ${data.vibe}
@@ -140,11 +166,10 @@ DETAILS:
 - ${data.partnerName} hates: ${data.partnerHates || 'not specified'}
 - Special requests: ${data.lastWords || 'none'}
 
-Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activities with ONLY REAL venues.`;
+Respond with ONLY the JSON, no other text.`;
 
     console.log('Calling Lovable AI for date plan generation...');
 
-    // Use tool calling for structured output - more reliable than asking for JSON
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -157,65 +182,6 @@ Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activi
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "generate_date_plans",
-              description: "Generate date plans for a couple",
-              parameters: {
-                type: "object",
-                properties: {
-                  plans: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        id: { type: "number" },
-                        title: { type: "string", description: "Creative plan name" },
-                        theme: { type: "string", description: "One word theme like Adventure or Romance" },
-                        timeline: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              time: { type: "string" },
-                              activity: { type: "string" },
-                              venue: { type: "string", description: "Real venue name" },
-                              address: { type: "string", description: "Actual address" },
-                              description: { type: "string" },
-                              mapsQuery: { type: "string" }
-                            },
-                            required: ["time", "activity", "venue", "address", "description", "mapsQuery"]
-                          }
-                        },
-                        whyItFits: { type: "string" },
-                        backupPlan: { type: "string" },
-                        exitStrategy: { type: "string" },
-                        estimatedCost: { type: "string" }
-                      },
-                      required: ["id", "title", "theme", "timeline", "whyItFits", "backupPlan", "exitStrategy", "estimatedCost"]
-                    }
-                  },
-                  inviteMessages: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        tone: { type: "string" },
-                        message: { type: "string" }
-                      },
-                      required: ["tone", "message"]
-                    }
-                  },
-                  astrologyVerdict: { type: "string", description: "Zodiac compatibility verdict or null" }
-                },
-                required: ["plans", "inviteMessages"]
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "generate_date_plans" } }
       }),
     });
 
@@ -239,16 +205,61 @@ Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activi
     }
 
     const aiResponse = await response.json();
-    console.log('AI response received, parsing...');
+    const content = aiResponse.choices?.[0]?.message?.content;
     
-    // Extract from tool call response
-    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== 'generate_date_plans') {
-      console.error('No valid tool call in response:', JSON.stringify(aiResponse).slice(0, 500));
-      throw new Error('AI did not return structured date plan');
+    if (!content) {
+      console.error('No content in AI response:', JSON.stringify(aiResponse).slice(0, 500));
+      throw new Error('No content in AI response');
     }
 
-    const datePlans = JSON.parse(toolCall.function.arguments);
+    console.log('AI response received, parsing...');
+    console.log('Raw content preview:', content.slice(0, 200));
+    
+    // Clean the response - remove markdown code blocks if present
+    let cleanedContent = content.trim();
+    if (cleanedContent.startsWith('```json')) {
+      cleanedContent = cleanedContent.slice(7);
+    }
+    if (cleanedContent.startsWith('```')) {
+      cleanedContent = cleanedContent.slice(3);
+    }
+    if (cleanedContent.endsWith('```')) {
+      cleanedContent = cleanedContent.slice(0, -3);
+    }
+    cleanedContent = cleanedContent.trim();
+
+    // Try to parse, with fallback
+    let datePlans;
+    try {
+      datePlans = JSON.parse(cleanedContent);
+    } catch (parseError) {
+      console.error('JSON parse error, content:', cleanedContent.slice(0, 300));
+      // Return a fallback plan
+      datePlans = {
+        plans: [
+          {
+            id: 1,
+            title: "Classic City Evening",
+            theme: "Romance",
+            timeline: [
+              { time: "6:00 PM", activity: "Dinner", venue: "Local favorite restaurant", address: data.city, description: "Start with a great meal", mapsQuery: `best romantic restaurant ${data.city}` },
+              { time: "8:00 PM", activity: "Walk", venue: "Downtown area", address: data.city, description: "Explore the city together", mapsQuery: `downtown ${data.city}` },
+              { time: "9:30 PM", activity: "Drinks", venue: "Cozy bar", address: data.city, description: "End the night with cocktails", mapsQuery: `best cocktail bar ${data.city}` }
+            ],
+            whyItFits: "A classic date that works for any occasion",
+            backupPlan: "If weather is bad, find a cozy indoor spot",
+            exitStrategy: "Early meeting tomorrow",
+            estimatedCost: "$100-150"
+          }
+        ],
+        inviteMessages: [
+          { tone: "Smooth", message: `Hey! I found some great spots in ${data.city}. Free this ${data.timeWindow}?` },
+          { tone: "Direct", message: `Let's grab dinner. You free?` },
+          { tone: "Chaos", message: `Adventure time! You in?` }
+        ],
+        astrologyVerdict: null
+      };
+    }
 
     return new Response(JSON.stringify(datePlans), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
