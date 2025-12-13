@@ -39,6 +39,13 @@ const VIDEO_QUESTIONS = [
   "What are you most passionate about in life?",
 ];
 
+const OPTIONAL_INTERESTS = [
+  "🎵 Music", "📚 Books", "🎮 Gaming", "🏋️ Fitness", "🍳 Cooking", 
+  "✈️ Travel", "🎨 Art", "🐕 Dogs", "🐱 Cats", "🎬 Movies",
+  "☕ Coffee", "🍷 Wine", "🏔️ Hiking", "🧘 Yoga", "📸 Photography",
+  "💃 Dancing", "🎭 Theater", "🌱 Plants", "🏖️ Beach", "🎤 Karaoke"
+];
+
 // Mock function to simulate extracting interests from social profiles
 const mockExtractInterests = (platform: 'instagram' | 'linkedin', url: string): Promise<SocialProfile> => {
   return new Promise((resolve) => {
@@ -366,6 +373,7 @@ const Profile = () => {
                   <h3 className="font-display font-semibold mb-3 flex items-center gap-2">
                     <span className="text-lg">✨</span> Your Interests (AI Detected)
                   </h3>
+                  <p className="text-xs text-muted-foreground mb-3 italic">"We stalked your socials (legally) and found these gems 💎"</p>
                   <div className="flex flex-wrap gap-2">
                     {allInterests.map(interest => (
                       <span 
@@ -379,18 +387,47 @@ const Profile = () => {
                 </div>
               )}
 
+              {/* Optional Manual Interests */}
+              <div className="pt-4 border-t">
+                <h3 className="font-display font-semibold mb-3 flex items-center gap-2">
+                  <span className="text-lg">🎯</span> Add More Interests (Optional)
+                </h3>
+                <p className="text-xs text-muted-foreground mb-3 italic">"Tell us what makes your heart skip a beat... besides pizza 🍕"</p>
+                <div className="flex flex-wrap gap-2">
+                  {OPTIONAL_INTERESTS.map(interest => (
+                    <button
+                      key={interest}
+                      onClick={() => {
+                        if (formData.interests.includes(interest)) {
+                          updateField('interests', formData.interests.filter(i => i !== interest));
+                        } else {
+                          updateField('interests', [...formData.interests, interest]);
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                        formData.interests.includes(interest)
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      {interest}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <Button 
-                className="w-full mt-6" 
+                className="w-full mt-6 bg-gradient-romantic hover:opacity-90" 
                 onClick={() => setStep(2)}
-                disabled={!formData.name || !formData.location || !formData.sex || !formData.orientation || !hasConnectedSocial}
+                disabled={!formData.name || !formData.location || !formData.sex || !formData.orientation}
               >
-                Continue to Video Analysis
+                Continue to Video Analysis 🎬
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
               
-              {!hasConnectedSocial && (
+              {!hasConnectedSocial && formData.interests.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">
-                  Connect at least one social profile to continue
+                  Psst... connect a social or pick some interests. We need something to work with! 😅
                 </p>
               )}
             </CardContent>
