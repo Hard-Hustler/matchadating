@@ -92,11 +92,39 @@ serve(async (req) => {
         : `HYPE MODE: ${data.userName} is a ${userSign} and ${data.partnerName} is a ${partnerSign}. These signs are HIGHLY COMPATIBLE! Emphasize how cosmically aligned they are. Be enthusiastic about their zodiac chemistry.`;
     }
 
+    // Real NYC venue database for more realistic suggestions
+    const nycVenues = {
+      restaurants: {
+        romantic: ["Gramercy Tavern", "Le Bernardin", "Eleven Madison Park", "The River Café", "One if by Land, Two if by Sea", "Carbone", "Via Carota", "L'Artusi"],
+        casual: ["Joe's Pizza", "Katz's Delicatessen", "Shake Shack", "Russ & Daughters Cafe", "Xi'an Famous Foods", "Los Tacos No. 1", "Prince Street Pizza"],
+        trendy: ["Tatiana by Kwame Onwuachi", "Don Angie", "4 Charles Prime Rib", "Gage & Tollner", "Crown Shy", "Laser Wolf"],
+        brunch: ["Balthazar", "Sadelle's", "Jack's Wife Freda", "Cafe Mogador", "Egg Shop", "Clinton Street Baking Co."]
+      },
+      bars: {
+        speakeasy: ["Please Don't Tell (PDT)", "Death & Co", "Attaboy", "The Back Room", "Employees Only", "Angel's Share"],
+        rooftop: ["230 Fifth", "Westlight", "The Skylark", "Magic Hour Rooftop Bar", "Mr. Purple", "The Crown"],
+        wine: ["Terroir", "LaLou", "Corkbuzz Wine Studio", "The Four Horsemen", "Racines NY"]
+      },
+      activities: {
+        cultural: ["The Met", "MoMA", "Whitney Museum", "The High Line", "Lincoln Center", "Brooklyn Museum", "Guggenheim"],
+        entertainment: ["Blue Note Jazz Club", "Comedy Cellar", "Sleep No More", "House of Yes", "Brooklyn Bowl", "Music Hall of Williamsburg"],
+        outdoor: ["Central Park Boathouse", "Brooklyn Bridge Walk", "DUMBO Waterfront", "The High Line", "Governors Island", "Prospect Park"],
+        unique: ["Meow Wolf (coming soon)", "Color Factory", "Spyscape", "The Seaport District", "Chelsea Market", "Smorgasburg"]
+      },
+      neighborhoods: ["West Village", "SoHo", "Tribeca", "Williamsburg", "DUMBO", "Chelsea", "Lower East Side", "East Village", "Harlem", "Upper West Side"]
+    };
+
     const systemPrompt = `You are a witty, sarcastic AI date planner with the personality of a brutally honest best friend who also happens to be a relationship expert. Your job is to create 3 unique, detailed date plans.
 
 ${astrologyContext}
 
-CRITICAL: You must respond with ONLY valid JSON, no markdown, no code blocks, just raw JSON.
+VENUE GUIDELINES - Use these REAL NYC venues:
+RESTAURANTS: ${JSON.stringify(nycVenues.restaurants)}
+BARS: ${JSON.stringify(nycVenues.bars)}
+ACTIVITIES: ${JSON.stringify(nycVenues.activities)}
+NEIGHBORHOODS: ${JSON.stringify(nycVenues.neighborhoods)}
+
+CRITICAL: You must respond with ONLY valid JSON, no markdown, no code blocks, just raw JSON. Use ONLY real venues from the lists above or other well-known NYC establishments.
 
 The JSON structure must be:
 {
@@ -109,9 +137,10 @@ The JSON structure must be:
         {
           "time": "7:00 PM",
           "activity": "Activity name",
-          "venue": "Real venue name in the city",
+          "venue": "Real venue name from the list above",
+          "address": "Actual NYC address",
           "description": "Why this works for them",
-          "mapsQuery": "venue name city for google maps search"
+          "mapsQuery": "venue name NYC for google maps search"
         }
       ],
       "whyItFits": "2-3 sentences explaining why this plan matches their preferences",
@@ -140,7 +169,7 @@ The JSON structure must be:
     const userPrompt = `Create 3 unique date plans for ${data.userName} and ${data.partnerName}.
 
 DETAILS:
-- City: ${data.city}
+- City: ${data.city} (USE ONLY REAL, VERIFIED VENUES)
 - Time: ${data.timeWindow}
 - Occasion: ${data.occasion}
 - Vibe: ${data.vibe}
@@ -151,7 +180,7 @@ DETAILS:
 - ${data.partnerName} hates: ${data.partnerHates || 'not specified'}
 - Special requests: ${data.lastWords || 'none'}
 
-Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activities with REAL venues in ${data.city}. Be creative, specific, and match their preferences. Include real restaurant/bar/activity names that would exist in ${data.city}.`;
+Generate 3 DISTINCTLY DIFFERENT date plans. Each should have 3-4 timeline activities with ONLY REAL venues that actually exist in ${data.city}. Include actual addresses. For NYC, use the venue database provided. Be creative, specific, and match their preferences.`;
 
     console.log('Calling Lovable AI for date plan generation...');
 
