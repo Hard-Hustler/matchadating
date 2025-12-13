@@ -72,14 +72,12 @@ const Index = () => {
               transition={{ delay: 0.3, duration: 0.8 }}
             >
               <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
-                Where AI finds
+                Designed to be
                 <br />
-                <span className="text-gradient-love">your perfect</span>
-                <br />
-                match.
+                <span className="text-gradient-love">deleted.</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground max-w-lg mb-8">
-                AI-powered matching that understands who you really are. No endless swiping—just meaningful connections.
+                Smart matching that understands who you really are. No endless swiping—just meaningful connections.
               </p>
               <Link to="/profile">
                 <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
