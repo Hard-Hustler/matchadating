@@ -1,12 +1,3 @@
-import sarahImg from '@/assets/profiles/sarah.jpg';
-import marcusImg from '@/assets/profiles/marcus.jpg';
-import emmaImg from '@/assets/profiles/emma.jpg';
-import alexImg from '@/assets/profiles/alex.jpg';
-import jamesImg from '@/assets/profiles/james.jpg';
-import priyaImg from '@/assets/profiles/priya.jpg';
-import davidImg from '@/assets/profiles/david.jpg';
-import lunaImg from '@/assets/profiles/luna.jpg';
-
 export interface Profile {
   id: string;
   name: string;
@@ -27,7 +18,6 @@ export interface Profile {
   bodyType: string;
   sign: string;
   lookingFor?: string;
-  avatar?: string;
   profileImage?: string;
   essays: {
     aboutMe: string;
@@ -57,8 +47,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "fit",
     sign: "Libra ♎",
     lookingFor: "serious",
-    avatar: "style2-none",
-    profileImage: sarahImg,
     essays: {
       aboutMe: "I believe in deep conversations over good food. Currently training for my first half-marathon while also perfecting my sourdough recipe.",
       lookingFor: "Someone authentic who values growth and isn't afraid to be vulnerable. Bonus points if you can make me laugh.",
@@ -85,8 +73,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "athletic",
     sign: "Scorpio ♏",
     lookingFor: "serious",
-    avatar: "style3-glasses",
-    profileImage: marcusImg,
     essays: {
       aboutMe: "I play saxophone in a local jazz band and code during the day. Balance is everything to me - work hard, play harder.",
       lookingFor: "Someone who appreciates both quiet nights in and spontaneous adventures. Must love live music.",
@@ -113,8 +99,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "average",
     sign: "Pisces ♓",
     lookingFor: "casual",
-    avatar: "style1-none",
-    profileImage: emmaImg,
     essays: {
       aboutMe: "Fascinated by the ocean and everything in it. I can talk about marine ecosystems for hours, but I promise I am fun at parties too.",
       lookingFor: "An intellectually curious person who loves learning and is not intimidated by ambition.",
@@ -141,8 +125,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "curvy",
     sign: "Aquarius ♒",
     lookingFor: "friends",
-    avatar: "style4-earrings",
-    profileImage: alexImg,
     essays: {
       aboutMe: "I express myself through color and movement. Currently working on a community garden project in the Mission.",
       lookingFor: "Someone who cares about making a difference and is not afraid to dream big together.",
@@ -169,8 +151,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "fit",
     sign: "Taurus ♉",
     lookingFor: "serious",
-    avatar: "style5-none",
-    profileImage: jamesImg,
     essays: {
       aboutMe: "I have cooked in kitchens from New York to Tokyo. Now I am focused on sustainable, local cuisine.",
       lookingFor: "Someone who appreciates a home-cooked meal and good conversation over wine.",
@@ -197,8 +177,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "athletic",
     sign: "Aries ♈",
     lookingFor: "serious",
-    avatar: "style6-headphones",
-    profileImage: priyaImg,
     essays: {
       aboutMe: "Built my first app at 22, still chasing that startup high. But I know how to disconnect - the dance floor is my therapy.",
       lookingFor: "Someone ambitious who also knows how to have fun. Let us build empires and dance until midnight.",
@@ -225,8 +203,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "average",
     sign: "Cancer ♋",
     lookingFor: "serious",
-    avatar: "style3-none",
-    profileImage: davidImg,
     essays: {
       aboutMe: "Nothing beats seeing a kid's face light up when they finally get it. I bring that same enthusiasm to everything.",
       lookingFor: "Someone kind, patient, and ready for adventures both big and small.",
@@ -253,8 +229,6 @@ export const mockProfiles: Profile[] = [
     bodyType: "slim",
     sign: "Sagittarius ♐",
     lookingFor: "casual",
-    avatar: "style1-earrings",
-    profileImage: lunaImg,
     essays: {
       aboutMe: "Every tattoo tells a story. I love helping people express themselves through permanent art.",
       lookingFor: "Someone creative, a little weird, and who will not judge my extensive plant collection.",

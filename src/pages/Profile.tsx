@@ -5,11 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowRight, Video, ArrowLeft, Instagram, Linkedin, Sparkles, Check, Loader2, Star, MapPin, Scan } from 'lucide-react';
+import { Heart, ArrowRight, Video, ArrowLeft, Instagram, Linkedin, Sparkles, Check, Loader2, Star, MapPin, Scan, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 import VideoEmotionCapture, { EmotionData, PersonaResult, generatePersonaFromEmotions } from '@/components/VideoEmotionCapture';
 import PersonaDisplay from '@/components/PersonaDisplay';
-import AvatarSelector from '@/components/AvatarSelector';
 
 interface ProfileFormData {
   name: string;
@@ -25,7 +24,7 @@ interface ProfileFormData {
   zodiacSign: string;
   lookingFor: string;
   bio: string;
-  avatar: string;
+  profileImage: string;
   instagramUrl: string;
   linkedinUrl: string;
   interests: string[];
@@ -40,6 +39,7 @@ interface SocialProfile {
     name?: string;
     headline?: string;
     industry?: string;
+    profilePicture?: string;
   };
 }
 
@@ -56,17 +56,21 @@ const OPTIONAL_INTERESTS = [
   "Dancing", "Theater", "Plants", "Beach", "Outdoors"
 ];
 
-// Mock function to simulate extracting interests from social profiles
+// Mock function to simulate extracting interests and profile picture from social profiles
 const mockExtractInterests = (platform: 'instagram' | 'linkedin', url: string): Promise<SocialProfile> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       if (platform === 'instagram') {
+        // Extract username from URL to create a mock profile picture
+        const username = url.split('/').filter(Boolean).pop() || 'user';
         resolve({
           platform: 'instagram',
           connected: true,
           extractedInterests: ['Travel', 'Photography', 'Food', 'Fitness', 'Art', 'Music', 'Fashion', 'Nature'],
           profileData: {
-            name: 'Extracted from Instagram',
+            name: username,
+            // In real app, this would be the actual Instagram profile picture URL
+            profilePicture: `https://ui-avatars.com/api/?name=${username}&size=400&background=random&color=fff&bold=true`,
           }
         });
       } else {
@@ -114,7 +118,7 @@ const [formData, setFormData] = useState<ProfileFormData>({
     zodiacSign: '',
     lookingFor: '',
     bio: '',
-    avatar: 'style1-none',
+    profileImage: '',
     instagramUrl: '',
     linkedinUrl: '',
     interests: [],
@@ -170,7 +174,14 @@ const [formData, setFormData] = useState<ProfileFormData>({
       const profile = await mockExtractInterests('instagram', formData.instagramUrl);
       setSocialProfiles(prev => ({ ...prev, instagram: profile }));
       updateField('interests', [...new Set([...formData.interests, ...profile.extractedInterests])]);
-      toast.success(`Found ${profile.extractedInterests.length} interests from Instagram!`);
+      
+      // Set profile image from Instagram
+      if (profile.profileData?.profilePicture) {
+        updateField('profileImage', profile.profileData.profilePicture);
+        toast.success(`Profile picture imported! Found ${profile.extractedInterests.length} interests from Instagram!`);
+      } else {
+        toast.success(`Found ${profile.extractedInterests.length} interests from Instagram!`);
+      }
     } catch (error) {
       toast.error('Failed to connect Instagram');
     } finally {
@@ -200,31 +211,13 @@ const [formData, setFormData] = useState<ProfileFormData>({
     setEmotionSamples(prev => [...prev, emotions]);
   };
 
-  // Auto-generate avatar based on persona type
-  const generateAvatarFromPersona = (personaType: string) => {
-    const avatarMap: Record<string, string> = {
-      'The Adventurer': 'style2-none',
-      'The Intellectual': 'style3-glasses',
-      'The Social Butterfly': 'style1-earrings',
-      'The Creative Soul': 'style4-none',
-      'The Romantic': 'style5-none',
-      'The Homebody': 'style6-none',
-    };
-    return avatarMap[personaType] || 'style1-none';
-  };
-
   const handleQuestionComplete = () => {
     if (currentQuestionIndex < VIDEO_QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       const persona = generatePersonaFromEmotions(emotionSamples);
       setGeneratedPersona(persona);
-      
-      // Auto-generate avatar from persona
-      const autoAvatar = generateAvatarFromPersona(persona.personaType);
-      updateField('avatar', autoAvatar);
-      
-      toast.success('Persona detected! Avatar auto-generated from your expressions.');
+      toast.success('Persona detected! Your authentic personality revealed.');
     }
   };
 
@@ -319,15 +312,39 @@ const [formData, setFormData] = useState<ProfileFormData>({
                 </div>
               </div>
 
-              {/* Avatar Section */}
+              {/* Profile Picture Section */}
               <div className="pb-4 border-b">
-                <h3 className="font-display font-semibold mb-2">Create Your Avatar</h3>
-                <p className="text-xs text-muted-foreground mb-4">Choose a style that represents you. This will auto-update after video analysis.</p>
-                <AvatarSelector 
-                  value={formData.avatar} 
-                  onChange={v => updateField('avatar', v)} 
-                  sex={formData.sex}
-                />
+                <h3 className="font-display font-semibold mb-2 flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-primary" />
+                  Your Profile Picture
+                </h3>
+                <p className="text-xs text-muted-foreground mb-4">Connect your Instagram below to use your profile picture, or it will be generated from your name.</p>
+                
+                {formData.profileImage ? (
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
+                      <img 
+                        src={formData.profileImage} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-primary">Photo imported from Instagram</p>
+                      <p className="text-xs text-muted-foreground">Connect Instagram below to update</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border border-dashed border-border">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-romantic flex items-center justify-center text-2xl text-white font-bold">
+                      {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">No photo yet</p>
+                      <p className="text-xs text-muted-foreground">Connect Instagram to import your profile picture</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Basic Info */}
@@ -798,16 +815,19 @@ const [formData, setFormData] = useState<ProfileFormData>({
               {/* Profile Summary */}
               <div className="p-6 rounded-2xl bg-muted/50 border border-border/50">
                 <div className="flex items-center gap-4 mb-6">
-                  <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${
-                    formData.avatar.startsWith('style2') ? 'from-rose-500 to-orange-400' :
-                    formData.avatar.startsWith('style3') ? 'from-cyan-500 to-blue-500' :
-                    formData.avatar.startsWith('style4') ? 'from-emerald-500 to-teal-500' :
-                    formData.avatar.startsWith('style5') ? 'from-amber-500 to-pink-500' :
-                    formData.avatar.startsWith('style6') ? 'from-indigo-500 to-purple-500' :
-                    'from-violet-500 to-fuchsia-500'
-                  } flex items-center justify-center text-3xl shadow-lg`}>
-                    {formData.sex === 'female' ? '👩' : formData.sex === 'male' ? '👨' : '🧑'}
-                  </div>
+                  {formData.profileImage ? (
+                    <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-primary/30 shadow-lg">
+                      <img 
+                        src={formData.profileImage} 
+                        alt="Profile" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-romantic flex items-center justify-center text-3xl shadow-lg text-white font-bold">
+                      {formData.name ? formData.name.charAt(0).toUpperCase() : '?'}
+                    </div>
+                  )}
                   <div>
                     <h3 className="font-display text-xl font-bold">{formData.name || 'Your Name'}</h3>
                     <p className="text-muted-foreground">{formData.location} {formData.age && `• ${formData.age}`}</p>
