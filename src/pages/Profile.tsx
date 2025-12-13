@@ -6,8 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, ArrowRight, Video, SkipForward } from 'lucide-react';
+import { Heart, ArrowRight, Video, SkipForward, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import VideoEmotionCapture, { EmotionData, PersonaResult, generatePersonaFromEmotions } from '@/components/VideoEmotionCapture';
+import PersonaDisplay from '@/components/PersonaDisplay';
 
 interface ProfileFormData {
   name: string;
@@ -23,18 +25,24 @@ interface ProfileFormData {
   drinks: string;
   pets: string;
   dealBreakers: string;
-  videoResponses?: {
-    q1: string;
-    q2: string;
-    q3: string;
-  };
+  persona?: PersonaResult;
 }
+
+const VIDEO_QUESTIONS = [
+  "What makes you genuinely laugh?",
+  "Describe your perfect weekend adventure",
+  "What are you most passionate about in life?",
+];
 
 const Profile = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showVideo, setShowVideo] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [emotionSamples, setEmotionSamples] = useState<EmotionData[]>([]);
+  const [generatedPersona, setGeneratedPersona] = useState<PersonaResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const [formData, setFormData] = useState<ProfileFormData>({
     name: '',
     age: '',
@@ -51,14 +59,23 @@ const Profile = () => {
     dealBreakers: '',
   });
 
-  const [videoResponses, setVideoResponses] = useState({
-    q1: '',
-    q2: '',
-    q3: '',
-  });
-
   const updateField = (field: keyof ProfileFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleEmotionCapture = (emotions: EmotionData) => {
+    setEmotionSamples(prev => [...prev, emotions]);
+  };
+
+  const handleQuestionComplete = () => {
+    if (currentQuestionIndex < VIDEO_QUESTIONS.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
+      // Generate persona from all samples
+      const persona = generatePersonaFromEmotions(emotionSamples);
+      setGeneratedPersona(persona);
+      toast.success('AI Persona generated successfully!');
+    }
   };
 
   const handleSubmit = async () => {
@@ -68,16 +85,13 @@ const Profile = () => {
     }
 
     setIsSubmitting(true);
-    
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Store profile in localStorage for demo
     const profile = {
       ...formData,
       age: parseInt(formData.age),
       interests: formData.interests.split(',').map(i => i.trim()).filter(Boolean),
-      videoResponses: showVideo ? videoResponses : undefined,
+      persona: generatedPersona || undefined,
       id: `user-${Date.now()}`,
     };
     
@@ -313,6 +327,7 @@ const Profile = () => {
 
               <div className="flex gap-3 mt-6">
                 <Button variant="outline" onClick={() => setStep(1)} className="flex-1">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
                 <Button 
@@ -331,23 +346,37 @@ const Profile = () => {
         {step === 3 && (
           <>
             <CardHeader>
-              <CardTitle className="font-display text-2xl">Enhance your profile</CardTitle>
-              <CardDescription>Answer a few questions to help AI understand your personality better</CardDescription>
+              <CardTitle className="font-display text-2xl">
+                {generatedPersona ? 'Your AI Persona' : 'Video Persona Analysis'}
+              </CardTitle>
+              <CardDescription>
+                {generatedPersona 
+                  ? 'This is how our AI sees your personality!'
+                  : 'Answer questions on camera to detect your emotional persona'
+                }
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {!showVideo ? (
+              {!showVideo && !generatedPersona ? (
                 <div className="text-center py-8">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                     <Video className="w-10 h-10 text-primary" />
                   </div>
-                  <h3 className="font-display text-lg font-semibold mb-2">Persona Questions</h3>
-                  <p className="text-muted-foreground text-sm mb-6 max-w-sm mx-auto">
-                    Answer 3 quick questions to help our AI understand your personality and communication style.
+                  <h3 className="font-display text-lg font-semibold mb-2">Live Video Persona Detection</h3>
+                  <p className="text-muted-foreground text-sm mb-4 max-w-sm mx-auto">
+                    Our AI will analyze your facial expressions while you answer 3 questions to determine your emotional persona.
                   </p>
+                  <div className="flex flex-wrap justify-center gap-2 mb-6">
+                    {['Adventurer', 'Intellectual', 'Social Butterfly', 'Creative', 'Romantic', 'Homebody'].map(type => (
+                      <span key={type} className="text-xs px-3 py-1 rounded-full bg-muted">
+                        {type}
+                      </span>
+                    ))}
+                  </div>
                   <div className="flex flex-col gap-3 max-w-xs mx-auto">
                     <Button onClick={() => setShowVideo(true)}>
                       <Video className="w-4 h-4 mr-2" />
-                      Answer Questions
+                      Start Video Analysis
                     </Button>
                     <Button variant="ghost" onClick={handleSubmit} disabled={isSubmitting}>
                       <SkipForward className="w-4 h-4 mr-2" />
@@ -355,59 +384,69 @@ const Profile = () => {
                     </Button>
                   </div>
                 </div>
-              ) : (
+              ) : generatedPersona ? (
                 <div className="space-y-6">
-                  <div className="space-y-2">
-                    <Label className="text-primary font-medium">What makes you laugh?</Label>
-                    <Textarea 
-                      placeholder="Tell us about your sense of humor..."
-                      value={videoResponses.q1}
-                      onChange={e => setVideoResponses(prev => ({ ...prev, q1: e.target.value }))}
-                      rows={2}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-primary font-medium">Describe your ideal weekend</Label>
-                    <Textarea 
-                      placeholder="What does the perfect weekend look like for you?"
-                      value={videoResponses.q2}
-                      onChange={e => setVideoResponses(prev => ({ ...prev, q2: e.target.value }))}
-                      rows={2}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-primary font-medium">What are you passionate about?</Label>
-                    <Textarea 
-                      placeholder="What gets you excited and motivated?"
-                      value={videoResponses.q3}
-                      onChange={e => setVideoResponses(prev => ({ ...prev, q3: e.target.value }))}
-                      rows={2}
-                    />
+                  <PersonaDisplay persona={generatedPersona} />
+                  
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setGeneratedPersona(null);
+                        setEmotionSamples([]);
+                        setCurrentQuestionIndex(0);
+                      }} 
+                      className="flex-1"
+                    >
+                      Retake Video
+                    </Button>
+                    <Button 
+                      className="flex-1" 
+                      onClick={handleSubmit}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <span className="animate-spin mr-2">⏳</span>
+                          Creating Profile...
+                        </>
+                      ) : (
+                        <>
+                          Find My Matches
+                          <Heart className="w-4 h-4 ml-2" />
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
-              )}
-
-              {showVideo && (
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
-                    Back
-                  </Button>
+              ) : (
+                <div className="space-y-4">
+                  {/* Question progress */}
+                  <div className="flex gap-2 mb-4">
+                    {VIDEO_QUESTIONS.map((_, idx) => (
+                      <div 
+                        key={idx}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          idx < currentQuestionIndex ? 'bg-primary' : 
+                          idx === currentQuestionIndex ? 'bg-primary/50' : 'bg-muted'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  
+                  <VideoEmotionCapture
+                    question={VIDEO_QUESTIONS[currentQuestionIndex]}
+                    questionIndex={currentQuestionIndex}
+                    onCapture={handleEmotionCapture}
+                    onComplete={handleQuestionComplete}
+                  />
+                  
                   <Button 
-                    className="flex-1" 
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
+                    variant="ghost" 
+                    onClick={() => setShowVideo(false)}
+                    className="w-full"
                   >
-                    {isSubmitting ? (
-                      <>
-                        <span className="animate-spin mr-2">⏳</span>
-                        Creating Profile...
-                      </>
-                    ) : (
-                      <>
-                        Find My Matches
-                        <Heart className="w-4 h-4 ml-2" />
-                      </>
-                    )}
+                    Cancel Video Analysis
                   </Button>
                 </div>
               )}

@@ -1,4 +1,5 @@
 import { Profile, mockProfiles } from './mockProfiles';
+import { PersonaResult } from '@/components/VideoEmotionCapture';
 
 export interface MatchResult {
   profile: Profile;
@@ -6,6 +7,10 @@ export interface MatchResult {
   reasoning: string;
   commonValues: string[];
   distanceMiles: number;
+  personaMatch?: {
+    matchType: string;
+    bonus: number;
+  };
 }
 
 export interface DatePlan {
@@ -37,6 +42,28 @@ const getDistance = (loc1: string, loc2: string): number => {
   return cityDistances[loc1]?.[loc2] ?? Math.random() * 30 + 5;
 };
 
+// Persona compatibility matrix - which personas work well together
+const personaCompatibility: Record<string, string[]> = {
+  'Adventurer': ['Adventurer', 'Creative', 'Social Butterfly'],
+  'Intellectual': ['Intellectual', 'Creative', 'Romantic'],
+  'Social Butterfly': ['Social Butterfly', 'Adventurer', 'Creative'],
+  'Homebody': ['Homebody', 'Romantic', 'Intellectual'],
+  'Creative': ['Creative', 'Adventurer', 'Intellectual', 'Romantic'],
+  'Romantic': ['Romantic', 'Creative', 'Homebody', 'Intellectual'],
+};
+
+// Mock personas for profiles without video (simulate detected personas)
+const mockPersonasForProfiles: Record<string, PersonaResult['personaType']> = {
+  '1': 'Adventurer',
+  '2': 'Romantic',
+  '3': 'Intellectual',
+  '4': 'Social Butterfly',
+  '5': 'Creative',
+  '6': 'Homebody',
+  '7': 'Adventurer',
+  '8': 'Romantic',
+};
+
 const compatibilityReasons = [
   "Both value deep, meaningful conversations and share a passion for personal growth. Your communication styles complement each other beautifully.",
   "Shared love for outdoor adventures and healthy living creates a strong foundation. Both prioritize work-life balance and authenticity.",
@@ -47,6 +74,22 @@ const compatibilityReasons = [
   "Adventure seekers at heart with appreciation for quiet moments. You'd push each other to grow while providing comfort.",
   "Both passionate about making a difference in the world. Your shared values would create a powerful partnership."
 ];
+
+const personaReasonings: Record<string, string> = {
+  'Adventurer-Adventurer': "Two adventurous spirits who'll never run out of exciting experiences to share!",
+  'Adventurer-Creative': "Your spontaneity combined with their creativity makes for an inspiring, never-boring connection.",
+  'Adventurer-Social Butterfly': "Together you'll have the most exciting social life and create unforgettable memories.",
+  'Intellectual-Intellectual': "Deep conversations and shared curiosity will keep you both mentally stimulated for years.",
+  'Intellectual-Creative': "Your analytical mind and their creative vision complement each other perfectly.",
+  'Intellectual-Romantic': "Your thoughtful nature meets their emotional depth for a profoundly connected relationship.",
+  'Social Butterfly-Social Butterfly': "The life of every party together - your social energies amplify each other!",
+  'Social Butterfly-Creative': "Their artistic flair and your social grace make you the ultimate power couple.",
+  'Homebody-Homebody': "Cozy nights in, meaningful conversations, and building a beautiful life together at home.",
+  'Homebody-Romantic': "Your love of comfort meets their romantic nature for the coziest, most loving relationship.",
+  'Creative-Creative': "Two artistic souls who'll inspire each other endlessly and create something beautiful together.",
+  'Creative-Romantic': "Art and love intertwined - your creative expressions of love will be legendary.",
+  'Romantic-Romantic': "A love story waiting to be written - you both speak the language of the heart.",
+};
 
 const commonValueSets = [
   ["authenticity", "growth", "adventure"],
@@ -59,7 +102,10 @@ const commonValueSets = [
   ["innovation", "purpose", "fun"]
 ];
 
-export const generateMatches = (userProfile: Partial<Profile>, count: number = 3): MatchResult[] => {
+export const generateMatches = (
+  userProfile: Partial<Profile> & { persona?: PersonaResult }, 
+  count: number = 3
+): MatchResult[] => {
   const availableProfiles = mockProfiles.filter(p => {
     if (userProfile.orientation === "straight") {
       return p.sex !== userProfile.sex;
@@ -67,34 +113,81 @@ export const generateMatches = (userProfile: Partial<Profile>, count: number = 3
     if (userProfile.orientation === "gay" || userProfile.orientation === "lesbian") {
       return p.sex === userProfile.sex;
     }
-    return true; // bisexual/pansexual matches with anyone
+    return true;
   });
 
   const shuffled = [...availableProfiles].sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, Math.min(count, shuffled.length));
+  const selected = shuffled.slice(0, Math.min(count + 2, shuffled.length)); // Get extra for sorting
 
-  return selected.map((profile, index) => {
-    const baseScore = 75 + Math.random() * 20;
+  const results = selected.map((profile, index) => {
+    let baseScore = 70 + Math.random() * 15;
+    
+    // Interest bonus
     const interestBonus = userProfile.interests?.some(i => 
       profile.interests.some(pi => pi.toLowerCase().includes(i.toLowerCase()))
     ) ? 5 : 0;
+    
+    // Location bonus
     const locationBonus = profile.location === userProfile.location ? 3 : 0;
     
-    const score = Math.min(99, Math.round(baseScore + interestBonus + locationBonus));
+    // PERSONA MATCHING BONUS
+    let personaMatch: { matchType: string; bonus: number } | undefined;
+    
+    if (userProfile.persona) {
+      const userPersona = userProfile.persona.personaType;
+      const matchPersona = mockPersonasForProfiles[profile.id] || 'Creative';
+      
+      const compatiblePersonas = personaCompatibility[userPersona] || [];
+      
+      if (matchPersona === userPersona) {
+        // Same persona - high compatibility
+        personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 12 };
+      } else if (compatiblePersonas.includes(matchPersona)) {
+        // Compatible persona
+        personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 8 };
+      } else {
+        // Less compatible but could work
+        personaMatch = { matchType: `${userPersona} + ${matchPersona}`, bonus: 3 };
+      }
+    }
+    
+    const personaBonus = personaMatch?.bonus || 0;
+    const score = Math.min(99, Math.round(baseScore + interestBonus + locationBonus + personaBonus));
+    
+    // Generate persona-aware reasoning
+    let reasoning = compatibilityReasons[index % compatibilityReasons.length];
+    
+    if (personaMatch && userProfile.persona) {
+      const userPersona = userProfile.persona.personaType;
+      const matchPersona = mockPersonasForProfiles[profile.id] || 'Creative';
+      const personaKey = `${userPersona}-${matchPersona}`;
+      const reverseKey = `${matchPersona}-${userPersona}`;
+      
+      const personaReason = personaReasonings[personaKey] || personaReasonings[reverseKey];
+      if (personaReason) {
+        reasoning = personaReason + " " + reasoning;
+      }
+    }
     
     return {
       profile,
       compatibilityScore: score,
-      reasoning: compatibilityReasons[index % compatibilityReasons.length],
+      reasoning,
       commonValues: commonValueSets[index % commonValueSets.length],
-      distanceMiles: getDistance(userProfile.location || "San Francisco", profile.location)
+      distanceMiles: getDistance(userProfile.location || "San Francisco", profile.location),
+      personaMatch,
     };
-  }).sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+  })
+  .sort((a, b) => b.compatibilityScore - a.compatibilityScore)
+  .slice(0, count);
+
+  return results;
 };
 
-export const generateDatePlan = (user: Partial<Profile>, match: Profile): DatePlan => {
+export const generateDatePlan = (user: Partial<Profile> & { persona?: PersonaResult }, match: Profile): DatePlan => {
   const location = user.location || match.location;
   
+  // Persona-specific restaurant suggestions
   const restaurants = [
     { name: "Café Matcha", cuisine: "Japanese Fusion", vibe: "Cozy, modern, conversation-friendly" },
     { name: "The Garden Table", cuisine: "Farm-to-Table", vibe: "Romantic, intimate, locally-sourced" },
@@ -114,6 +207,25 @@ export const generateDatePlan = (user: Partial<Profile>, match: Profile): DatePl
     match.interests.some(mi => mi.toLowerCase().includes(i.toLowerCase()))
   ) || match.interests[0];
 
+  // Add persona-aware tips if user has a persona
+  const baseTips = [
+    `${match.name} values authenticity, so be genuine rather than trying to impress`,
+    `They mentioned ${match.interests[0]} - showing interest in this could spark great conversation`,
+    `Listen actively - their profile suggests communication is important to them`,
+  ];
+
+  if (user.persona) {
+    const personaTips: Record<string, string> = {
+      'Adventurer': 'Share your adventurous stories - your enthusiasm is contagious!',
+      'Intellectual': 'Your thoughtful questions will impress - ask about their passions.',
+      'Social Butterfly': 'Your natural warmth will shine - just be your charming self!',
+      'Homebody': 'Suggest a cozy follow-up activity - they might love that idea.',
+      'Creative': 'Show your creative side - maybe sketch something for them!',
+      'Romantic': 'Small romantic gestures go a long way with your personality.',
+    };
+    baseTips.unshift(personaTips[user.persona.personaType] || 'Be yourself - your persona is perfect for this match!');
+  }
+
   return {
     matchName: match.name,
     restaurant: {
@@ -127,11 +239,6 @@ export const generateDatePlan = (user: Partial<Profile>, match: Profile): DatePl
       `If you could travel anywhere next month, where would you go and why?`,
       `What's the most spontaneous thing you've done recently?`
     ],
-    tips: [
-      `${match.name} values authenticity, so be genuine rather than trying to impress`,
-      `They mentioned ${match.interests[0]} - showing interest in this could spark great conversation`,
-      `Listen actively - their profile suggests communication is important to them`,
-      `They're a ${match.sign} - if you believe in astrology, you might mention it playfully!`
-    ]
+    tips: baseTips
   };
 };
