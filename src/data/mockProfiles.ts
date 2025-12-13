@@ -2,6 +2,7 @@ export interface Profile {
   id: string;
   name: string;
   age: number;
+  birthDate?: string;
   location: string;
   sex: string;
   orientation: string;
@@ -9,11 +10,15 @@ export interface Profile {
   interests: string[];
   job: string;
   education: string;
+  height?: string;
   diet: string;
   drinks: string;
+  smoking?: string;
   pets: string;
   bodyType: string;
   sign: string;
+  lookingFor?: string;
+  avatar?: string;
   essays: {
     aboutMe: string;
     lookingFor: string;
@@ -26,6 +31,7 @@ export const mockProfiles: Profile[] = [
     id: "sarah-001",
     name: "Sarah",
     age: 28,
+    birthDate: "1996-10-05",
     location: "San Francisco",
     sex: "female",
     orientation: "straight",
@@ -33,11 +39,15 @@ export const mockProfiles: Profile[] = [
     interests: ["hiking", "cooking", "photography", "travel", "wine tasting"],
     job: "Product Designer",
     education: "graduate",
+    height: "5ft6 (168cm)",
     diet: "vegetarian",
     drinks: "socially",
+    smoking: "never",
     pets: "dogs",
     bodyType: "fit",
-    sign: "Libra",
+    sign: "Libra ♎",
+    lookingFor: "serious",
+    avatar: "style2-none",
     essays: {
       aboutMe: "I believe in deep conversations over good food. Currently training for my first half-marathon while also perfecting my sourdough recipe.",
       lookingFor: "Someone authentic who values growth and isn't afraid to be vulnerable. Bonus points if you can make me laugh.",
@@ -48,6 +58,7 @@ export const mockProfiles: Profile[] = [
     id: "marcus-002",
     name: "Marcus",
     age: 31,
+    birthDate: "1993-11-15",
     location: "Oakland",
     sex: "male",
     orientation: "straight",
@@ -55,11 +66,15 @@ export const mockProfiles: Profile[] = [
     interests: ["music", "coding", "basketball", "meditation", "jazz"],
     job: "Software Engineer",
     education: "graduate",
+    height: "6ft0 (183cm)",
     diet: "anything",
     drinks: "socially",
+    smoking: "never",
     pets: "cats",
     bodyType: "athletic",
-    sign: "Scorpio",
+    sign: "Scorpio ♏",
+    lookingFor: "serious",
+    avatar: "style3-glasses",
     essays: {
       aboutMe: "I play saxophone in a local jazz band and code during the day. Balance is everything to me - work hard, play harder.",
       lookingFor: "Someone who appreciates both quiet nights in and spontaneous adventures. Must love live music.",
@@ -70,6 +85,7 @@ export const mockProfiles: Profile[] = [
     id: "emma-003",
     name: "Emma",
     age: 26,
+    birthDate: "1998-03-02",
     location: "Berkeley",
     sex: "female",
     orientation: "bisexual",
@@ -77,11 +93,15 @@ export const mockProfiles: Profile[] = [
     interests: ["reading", "surfing", "science", "documentaries", "yoga"],
     job: "PhD Researcher",
     education: "graduate",
+    height: "5ft4 (163cm)",
     diet: "pescatarian",
     drinks: "rarely",
+    smoking: "never",
     pets: "none",
     bodyType: "average",
-    sign: "Pisces",
+    sign: "Pisces ♓",
+    lookingFor: "casual",
+    avatar: "style1-none",
     essays: {
       aboutMe: "Fascinated by the ocean and everything in it. I can talk about marine ecosystems for hours, but I promise I'm fun at parties too.",
       lookingFor: "An intellectually curious person who loves learning and isn't intimidated by ambition.",
@@ -92,6 +112,7 @@ export const mockProfiles: Profile[] = [
     id: "alex-004",
     name: "Alex",
     age: 29,
+    birthDate: "1995-02-05",
     location: "San Francisco",
     sex: "non-binary",
     orientation: "pansexual",
@@ -99,11 +120,15 @@ export const mockProfiles: Profile[] = [
     interests: ["art", "activism", "gardening", "poetry", "dance"],
     job: "Muralist",
     education: "college",
+    height: "5ft8 (173cm)",
     diet: "vegan",
     drinks: "socially",
+    smoking: "sometimes",
     pets: "cats",
     bodyType: "curvy",
-    sign: "Aquarius",
+    sign: "Aquarius ♒",
+    lookingFor: "friends",
+    avatar: "style4-earrings",
     essays: {
       aboutMe: "I express myself through color and movement. Currently working on a community garden project in the Mission.",
       lookingFor: "Someone who cares about making a difference and isn't afraid to dream big together.",
@@ -114,6 +139,7 @@ export const mockProfiles: Profile[] = [
     id: "james-005",
     name: "James",
     age: 34,
+    birthDate: "1990-05-10",
     location: "San Jose",
     sex: "male",
     orientation: "gay",
@@ -121,11 +147,15 @@ export const mockProfiles: Profile[] = [
     interests: ["cooking", "wine", "farmers markets", "travel", "running"],
     job: "Executive Chef",
     education: "culinary school",
+    height: "5ft10 (178cm)",
     diet: "anything",
     drinks: "regularly",
+    smoking: "never",
     pets: "dogs",
     bodyType: "fit",
-    sign: "Taurus",
+    sign: "Taurus ♉",
+    lookingFor: "serious",
+    avatar: "style5-none",
     essays: {
       aboutMe: "I've cooked in kitchens from New York to Tokyo. Now I'm focused on sustainable, local cuisine.",
       lookingFor: "Someone who appreciates a home-cooked meal and good conversation over wine.",
@@ -136,6 +166,7 @@ export const mockProfiles: Profile[] = [
     id: "priya-006",
     name: "Priya",
     age: 27,
+    birthDate: "1997-04-01",
     location: "San Francisco",
     sex: "female",
     orientation: "straight",
@@ -143,11 +174,15 @@ export const mockProfiles: Profile[] = [
     interests: ["entrepreneurship", "dancing", "tech", "travel", "fitness"],
     job: "Startup Founder",
     education: "graduate",
+    height: "5ft4 (163cm)",
     diet: "anything",
     drinks: "socially",
+    smoking: "never",
     pets: "none",
     bodyType: "athletic",
-    sign: "Aries",
+    sign: "Aries ♈",
+    lookingFor: "serious",
+    avatar: "style6-headphones",
     essays: {
       aboutMe: "Built my first app at 22, still chasing that startup high. But I know how to disconnect - the dance floor is my therapy.",
       lookingFor: "Someone ambitious who also knows how to have fun. Let's build empires and dance until midnight.",
@@ -158,6 +193,7 @@ export const mockProfiles: Profile[] = [
     id: "david-007",
     name: "David",
     age: 32,
+    birthDate: "1992-07-15",
     location: "Oakland",
     sex: "male",
     orientation: "straight",
@@ -165,11 +201,15 @@ export const mockProfiles: Profile[] = [
     interests: ["education", "camping", "guitar", "board games", "hiking"],
     job: "Teacher",
     education: "graduate",
+    height: "5ft10 (178cm)",
     diet: "anything",
     drinks: "socially",
+    smoking: "never",
     pets: "dogs",
     bodyType: "average",
-    sign: "Cancer",
+    sign: "Cancer ♋",
+    lookingFor: "serious",
+    avatar: "style3-none",
     essays: {
       aboutMe: "Nothing beats seeing a kid's face light up when they finally get it. I bring that same enthusiasm to everything.",
       lookingFor: "Someone kind, patient, and ready for adventures both big and small.",
@@ -180,6 +220,7 @@ export const mockProfiles: Profile[] = [
     id: "luna-008",
     name: "Luna",
     age: 25,
+    birthDate: "1999-12-05",
     location: "Berkeley",
     sex: "female",
     orientation: "lesbian",
@@ -187,11 +228,15 @@ export const mockProfiles: Profile[] = [
     interests: ["art", "plants", "tattoos", "vinyl records", "thrifting"],
     job: "Tattoo Artist",
     education: "art school",
+    height: "5ft2 (157cm)",
     diet: "vegetarian",
     drinks: "socially",
+    smoking: "420",
     pets: "cats",
     bodyType: "slim",
-    sign: "Sagittarius",
+    sign: "Sagittarius ♐",
+    lookingFor: "casual",
+    avatar: "style1-earrings",
     essays: {
       aboutMe: "Every tattoo tells a story. I love helping people express themselves through permanent art.",
       lookingFor: "Someone creative, a little weird, and who won't judge my extensive plant collection.",
