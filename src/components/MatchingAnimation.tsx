@@ -96,11 +96,11 @@ export const MatchingAnimation = ({
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
           >
             <motion.div
-              className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary shadow-glow"
+              className="w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg"
+              style={{ borderColor: showMatch ? 'hsl(346, 77%, 49%)' : 'hsl(var(--border))' }}
               animate={{ 
-                borderColor: showMatch ? 'hsl(var(--primary))' : 'hsl(var(--border))',
                 boxShadow: showMatch 
-                  ? '0 0 40px hsl(var(--primary) / 0.5)' 
+                  ? '0 0 40px rgba(226, 58, 104, 0.5)' 
                   : '0 0 0px transparent'
               }}
             >
@@ -150,11 +150,11 @@ export const MatchingAnimation = ({
             transition={{ type: "spring", damping: 15, stiffness: 100 }}
           >
             <motion.div
-              className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary shadow-glow"
+              className="w-32 h-32 rounded-full overflow-hidden border-4 shadow-lg"
+              style={{ borderColor: showMatch ? 'hsl(346, 77%, 49%)' : 'hsl(var(--border))' }}
               animate={{ 
-                borderColor: showMatch ? 'hsl(var(--primary))' : 'hsl(var(--border))',
                 boxShadow: showMatch 
-                  ? '0 0 40px hsl(var(--primary) / 0.5)' 
+                  ? '0 0 40px rgba(226, 58, 104, 0.5)' 
                   : '0 0 0px transparent'
               }}
             >

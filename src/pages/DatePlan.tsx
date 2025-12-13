@@ -17,6 +17,7 @@ import { getProfileById } from '@/data/mockProfiles';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { MatchingAnimation } from '@/components/MatchingAnimation';
+import defaultUserProfile from '@/assets/user-profile.jpg';
 
 interface TimelineItem {
   time: string;
@@ -90,7 +91,7 @@ const DatePlanPage = () => {
   // Get match info
   const [userName, setUserName] = useState('You');
   const [partnerName, setPartnerName] = useState('Your Match');
-  const [userImage, setUserImage] = useState<string | undefined>();
+  const [userImage, setUserImage] = useState<string>(defaultUserProfile);
   const [partnerImage, setPartnerImage] = useState<string | undefined>();
 
   useEffect(() => {
