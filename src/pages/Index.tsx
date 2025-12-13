@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Calendar, Users, Play, ArrowRight, Instagram, Linkedin, Video, Heart, Star, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import AuthButton from '@/components/AuthButton';
 
 const TAGLINES = [
-  "Where Hearts Align ✨",
-  "Love, Powered by AI 💕",
-  "Your Soulmate Awaits...",
-  "Chemistry Beyond Swipes 💫",
+  "Where Hearts Align",
+  "Love, Powered by AI",
+  "Your Soulmate Awaits",
+  "Chemistry Beyond Swipes",
 ];
 
 const Index = () => {
@@ -27,128 +28,98 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero relative overflow-hidden">
-      {/* Animated Background Elements */}
+      {/* Subtle Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full">
-          <div className="absolute top-10 left-[5%] w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] animate-pulse" />
-          <div className="absolute top-32 right-[5%] w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute bottom-10 left-[40%] w-[350px] h-[350px] bg-love-coral/15 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '2s' }} />
+          <div className="absolute top-10 left-[5%] w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px]" />
+          <div className="absolute top-32 right-[5%] w-[400px] h-[400px] bg-secondary/10 rounded-full blur-[100px]" />
+          <div className="absolute bottom-10 left-[40%] w-[350px] h-[350px] bg-love-coral/8 rounded-full blur-[80px]" />
         </div>
-        
-        {/* Floating Hearts Animation */}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute animate-float"
-            style={{
-              left: `${5 + i * 8}%`,
-              top: `${10 + (i % 4) * 20}%`,
-              animationDelay: `${i * 0.4}s`,
-              animationDuration: `${5 + i * 0.5}s`,
-            }}
-          >
-            <Heart 
-              className={`${i % 3 === 0 ? 'text-primary/30' : i % 3 === 1 ? 'text-secondary/25' : 'text-love-coral/20'}`}
-              style={{ width: `${18 + i * 3}px`, height: `${18 + i * 3}px` }}
-              fill="currentColor"
-            />
-          </div>
-        ))}
-
-        {/* Sparkles */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={`sparkle-${i}`}
-            className="absolute animate-sparkle"
-            style={{
-              left: `${10 + i * 12}%`,
-              top: `${15 + (i % 3) * 30}%`,
-              animationDelay: `${i * 0.3}s`,
-            }}
-          >
-            <Star className="text-love-gold/40 w-4 h-4" fill="currentColor" />
-          </div>
-        ))}
       </div>
 
       {/* Navigation */}
       <nav className="relative z-10 flex items-center justify-between px-6 py-5 md:px-12">
         <div className="flex items-center gap-3">
           <div className="relative group">
-            <div className="absolute -inset-1 bg-gradient-romantic rounded-2xl blur-md opacity-60 group-hover:opacity-80 transition-opacity" />
-            <div className="relative w-14 h-14 rounded-2xl bg-gradient-romantic flex items-center justify-center shadow-glow">
-              <Heart className="w-7 h-7 text-primary-foreground animate-heartbeat" fill="currentColor" />
+            <div className="absolute -inset-1 bg-gradient-romantic rounded-2xl blur-md opacity-40 group-hover:opacity-60 transition-opacity" />
+            <div className="relative w-12 h-12 rounded-2xl bg-gradient-romantic flex items-center justify-center shadow-glow">
+              <Heart className="w-6 h-6 text-primary-foreground" fill="currentColor" />
             </div>
           </div>
           <div>
-            <span className="font-display text-3xl font-bold text-foreground tracking-tight">Matcha</span>
-            <span className="block text-xs text-muted-foreground tracking-widest uppercase">Find Your Match</span>
+            <span className="font-display text-2xl font-bold text-foreground tracking-tight">Matcha</span>
+            <span className="block text-xs text-muted-foreground tracking-wide">Find Your Match</span>
           </div>
         </div>
-        <Link to="/profile">
-          <Button className="rounded-full bg-gradient-romantic text-primary-foreground hover:opacity-90 font-semibold shadow-glow px-6">
-            Start Your Journey
-            <Heart className="w-4 h-4 ml-2" fill="currentColor" />
-          </Button>
-        </Link>
+        
+        <div className="flex items-center gap-3">
+          <AuthButton />
+          <Link to="/profile">
+            <Button className="rounded-full bg-gradient-romantic text-primary-foreground hover:opacity-90 font-medium shadow-glow px-5">
+              Get Started
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
+        </div>
       </nav>
 
       {/* Hero Section */}
       <main className="relative z-10 container mx-auto px-6 pt-8 pb-24">
         <div className="max-w-6xl mx-auto">
           {/* Main Hero */}
-          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[75vh]">
+          <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[70vh]">
             {/* Left - Text Content */}
             <div className="space-y-8">
-              <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 text-primary text-sm font-semibold">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
                 <Sparkles className="w-4 h-4" />
-                AI-Powered Love Discovery
-                <Zap className="w-4 h-4 text-love-gold" />
+                AI-Powered Matching
               </div>
               
-              <h1 className="font-display text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05]">
+              <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1]">
                 <span className="text-foreground">Find</span>
                 <br />
                 <span className="text-gradient-love">True Love</span>
                 <br />
-                <span className="text-foreground italic">Effortlessly</span>
+                <span className="text-foreground">Effortlessly</span>
               </h1>
               
-              <div className={`h-16 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                <p className="text-2xl md:text-3xl font-display font-medium text-muted-foreground italic">
+              <div className={`h-12 transition-all duration-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                <p className="text-xl md:text-2xl font-display font-medium text-muted-foreground">
                   {TAGLINES[taglineIndex]}
                 </p>
               </div>
 
-              <p className="text-lg text-muted-foreground max-w-lg">
+              <p className="text-base text-muted-foreground max-w-lg leading-relaxed">
                 Connect your social profiles, reveal your authentic self through video, and let our AI find your perfect match. No endless swiping—just meaningful connections.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Link to="/profile">
-                  <Button size="lg" className="rounded-full px-10 py-7 text-lg font-bold bg-gradient-romantic text-primary-foreground hover:opacity-90 shadow-glow transition-all hover:scale-105 group">
-                    <Heart className="w-5 h-5 mr-2 group-hover:animate-heartbeat" fill="currentColor" />
-                    Find Your Soulmate
+                  <Button size="lg" className="rounded-full px-8 py-6 text-base font-semibold bg-gradient-romantic text-primary-foreground hover:opacity-90 shadow-glow transition-all hover:scale-[1.02]">
+                    <Heart className="w-5 h-5 mr-2" fill="currentColor" />
+                    Start Matching
                   </Button>
                 </Link>
-                <Button size="lg" variant="outline" className="rounded-full px-8 py-7 text-lg font-semibold border-2 border-primary/30 hover:bg-primary/5 hover:border-primary/50 group">
-                  <Play className="w-5 h-5 mr-2 text-primary group-hover:scale-110 transition-transform" />
-                  See How It Works
+                <Button size="lg" variant="outline" className="rounded-full px-8 py-6 text-base font-medium border-2 border-border hover:bg-muted/50">
+                  <Play className="w-5 h-5 mr-2 text-primary" />
+                  How It Works
                 </Button>
               </div>
 
               {/* Social Proof */}
-              <div className="flex items-center gap-5 pt-8">
-                <div className="flex -space-x-4">
-                  {['💑', '👫', '💕', '🥰', '💏'].map((emoji, i) => (
-                    <div key={i} className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center text-xl border-3 border-background shadow-soft">
-                      {emoji}
-                    </div>
+              <div className="flex items-center gap-4 pt-6">
+                <div className="flex -space-x-3">
+                  {[1, 2, 3, 4, 5].map((_, i) => (
+                    <div key={i} className={`w-10 h-10 rounded-full bg-gradient-to-br ${
+                      i % 3 === 0 ? 'from-rose-400 to-pink-500' :
+                      i % 3 === 1 ? 'from-violet-400 to-purple-500' :
+                      'from-amber-400 to-orange-500'
+                    } border-2 border-background shadow-sm`} />
                   ))}
                 </div>
                 <div>
-                  <p className="font-bold text-foreground text-lg">5,000+ couples matched</p>
-                  <p className="text-muted-foreground">Join the love revolution 💘</p>
+                  <p className="font-semibold text-foreground">5,000+ couples matched</p>
+                  <p className="text-sm text-muted-foreground">Join the community</p>
                 </div>
               </div>
             </div>

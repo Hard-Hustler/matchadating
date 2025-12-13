@@ -50,10 +50,10 @@ const VIDEO_QUESTIONS = [
 ];
 
 const OPTIONAL_INTERESTS = [
-  "🎵 Music", "📚 Books", "🎮 Gaming", "🏋️ Fitness", "🍳 Cooking", 
-  "✈️ Travel", "🎨 Art", "🐕 Dogs", "🐱 Cats", "🎬 Movies",
-  "☕ Coffee", "🍷 Wine", "🏔️ Hiking", "🧘 Yoga", "📸 Photography",
-  "💃 Dancing", "🎭 Theater", "🌱 Plants", "🏖️ Beach", "🎤 Karaoke"
+  "Music", "Books", "Gaming", "Fitness", "Cooking", 
+  "Travel", "Art", "Dogs", "Cats", "Movies",
+  "Coffee", "Wine", "Hiking", "Yoga", "Photography",
+  "Dancing", "Theater", "Plants", "Beach", "Outdoors"
 ];
 
 // Mock function to simulate extracting interests from social profiles
@@ -200,13 +200,31 @@ const [formData, setFormData] = useState<ProfileFormData>({
     setEmotionSamples(prev => [...prev, emotions]);
   };
 
+  // Auto-generate avatar based on persona type
+  const generateAvatarFromPersona = (personaType: string) => {
+    const avatarMap: Record<string, string> = {
+      'The Adventurer': 'style2-none',
+      'The Intellectual': 'style3-glasses',
+      'The Social Butterfly': 'style1-earrings',
+      'The Creative Soul': 'style4-none',
+      'The Romantic': 'style5-none',
+      'The Homebody': 'style6-none',
+    };
+    return avatarMap[personaType] || 'style1-none';
+  };
+
   const handleQuestionComplete = () => {
     if (currentQuestionIndex < VIDEO_QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
       const persona = generatePersonaFromEmotions(emotionSamples);
       setGeneratedPersona(persona);
-      toast.success('AI Persona generated successfully!');
+      
+      // Auto-generate avatar from persona
+      const autoAvatar = generateAvatarFromPersona(persona.personaType);
+      updateField('avatar', autoAvatar);
+      
+      toast.success('Persona detected! Avatar auto-generated from your expressions.');
     }
   };
 
@@ -270,19 +288,15 @@ const [formData, setFormData] = useState<ProfileFormData>({
         {/* Step 1: Basic Info + Social Links */}
         {step === 1 && (
           <>
-            <CardHeader className="bg-gradient-to-r from-primary/10 to-secondary/10 border-b border-primary/10">
-              <CardTitle className="font-display text-2xl flex items-center gap-3">
-                <span className="text-3xl">💕</span> Connect Your World
-              </CardTitle>
-              <CardDescription className="text-base">Link your socials and we'll understand you better than any questionnaire</CardDescription>
+            <CardHeader className="bg-gradient-to-r from-primary/5 to-secondary/5 border-b border-border/50">
+              <CardTitle className="font-display text-2xl">Build Your Profile</CardTitle>
+              <CardDescription className="text-base">Connect your socials and let AI understand you better</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               {/* Avatar Section */}
               <div className="pb-4 border-b">
-                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
-                  <span className="text-lg">🎨</span> Create Your Avatar
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4 italic">"First impressions matter... make yours unforgettable 💅"</p>
+                <h3 className="font-display font-semibold mb-2">Create Your Avatar</h3>
+                <p className="text-xs text-muted-foreground mb-4">Choose a style that represents you. This will auto-update after video analysis.</p>
                 <AvatarSelector 
                   value={formData.avatar} 
                   onChange={v => updateField('avatar', v)} 
@@ -387,23 +401,21 @@ const [formData, setFormData] = useState<ProfileFormData>({
                 <Label>What are you looking for?</Label>
                 <Select value={formData.lookingFor} onValueChange={v => updateField('lookingFor', v)}>
                   <SelectTrigger className="bg-background">
-                    <SelectValue placeholder="Select your vibe" />
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="serious">💍 Something serious</SelectItem>
-                    <SelectItem value="casual">🎉 Something casual</SelectItem>
-                    <SelectItem value="friends">🤝 New friends</SelectItem>
-                    <SelectItem value="unsure">🤷 Still figuring it out</SelectItem>
+                    <SelectItem value="serious">Something serious</SelectItem>
+                    <SelectItem value="casual">Something casual</SelectItem>
+                    <SelectItem value="friends">New friends</SelectItem>
+                    <SelectItem value="unsure">Still figuring it out</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               {/* Lifestyle Section */}
               <div className="pt-4 border-t">
-                <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
-                  <span className="text-lg">🌱</span> Lifestyle (Optional)
-                </h3>
-                <p className="text-xs text-muted-foreground mb-4 italic">"Help us find someone who vibes with your lifestyle 🍃"</p>
+                <h3 className="font-display font-semibold mb-2">Lifestyle (Optional)</h3>
+                <p className="text-xs text-muted-foreground mb-4">Help us find someone who matches your lifestyle.</p>
                 
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
@@ -413,13 +425,13 @@ const [formData, setFormData] = useState<ProfileFormData>({
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="anything">🍔 Anything goes</SelectItem>
-                        <SelectItem value="vegetarian">🥗 Vegetarian</SelectItem>
-                        <SelectItem value="vegan">🌱 Vegan</SelectItem>
-                        <SelectItem value="pescatarian">🐟 Pescatarian</SelectItem>
-                        <SelectItem value="keto">🥩 Keto</SelectItem>
-                        <SelectItem value="halal">☪️ Halal</SelectItem>
-                        <SelectItem value="kosher">✡️ Kosher</SelectItem>
+                        <SelectItem value="anything">Anything goes</SelectItem>
+                        <SelectItem value="vegetarian">Vegetarian</SelectItem>
+                        <SelectItem value="vegan">Vegan</SelectItem>
+                        <SelectItem value="pescatarian">Pescatarian</SelectItem>
+                        <SelectItem value="keto">Keto</SelectItem>
+                        <SelectItem value="halal">Halal</SelectItem>
+                        <SelectItem value="kosher">Kosher</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -431,10 +443,10 @@ const [formData, setFormData] = useState<ProfileFormData>({
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="never">🚫 Never</SelectItem>
-                        <SelectItem value="rarely">🍷 Rarely</SelectItem>
-                        <SelectItem value="socially">🥂 Socially</SelectItem>
-                        <SelectItem value="regularly">🍻 Regularly</SelectItem>
+                        <SelectItem value="never">Never</SelectItem>
+                        <SelectItem value="rarely">Rarely</SelectItem>
+                        <SelectItem value="socially">Socially</SelectItem>
+                        <SelectItem value="regularly">Regularly</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -446,10 +458,10 @@ const [formData, setFormData] = useState<ProfileFormData>({
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="never">🚭 Never</SelectItem>
-                        <SelectItem value="sometimes">💨 Sometimes</SelectItem>
-                        <SelectItem value="regularly">🚬 Regularly</SelectItem>
-                        <SelectItem value="420">🌿 420 friendly</SelectItem>
+                        <SelectItem value="never">Never</SelectItem>
+                        <SelectItem value="sometimes">Sometimes</SelectItem>
+                        <SelectItem value="regularly">Regularly</SelectItem>
+                        <SelectItem value="420">420 friendly</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -462,7 +474,7 @@ const [formData, setFormData] = useState<ProfileFormData>({
                 <textarea
                   value={formData.bio}
                   onChange={e => updateField('bio', e.target.value)}
-                  placeholder="Give us your elevator pitch... but make it flirty 😏"
+                  placeholder="Tell us a bit about yourself..."
                   className="w-full min-h-[80px] px-3 py-2 rounded-md border border-input bg-background text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   maxLength={300}
                 />
