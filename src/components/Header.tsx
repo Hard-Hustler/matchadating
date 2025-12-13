@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Heart } from 'lucide-react';
+import { Heart, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import AuthButton from '@/components/AuthButton';
 
@@ -43,6 +43,13 @@ const Header = () => {
             className={`text-sm font-medium transition-colors hover:text-primary ${location.pathname === '/matches' ? 'text-primary' : 'text-muted-foreground'}`}
           >
             Matches
+          </Link>
+          <Link 
+            to="/date-plan?view=saved" 
+            className={`text-sm font-medium transition-colors hover:text-primary flex items-center gap-1.5 ${location.pathname === '/date-plan' ? 'text-primary' : 'text-muted-foreground'}`}
+          >
+            <Calendar className="w-4 h-4" />
+            Saved Dates
           </Link>
         </nav>
 
