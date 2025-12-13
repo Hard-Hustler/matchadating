@@ -1,1 +1,4 @@
 project_id = "ujyyugvdowpgzakrqnav"
+
+[functions.generate-date-plan]
+verify_jwt = false
