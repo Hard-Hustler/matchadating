@@ -102,6 +102,10 @@ const DatePlanPage = () => {
       setUserName(user.name || 'You');
       if (user.birthDate) setUserBirthDate(user.birthDate);
       if (user.profileImage) setUserImage(user.profileImage);
+      // Auto-fill user preferences from profile interests
+      if (user.interests && user.interests.length > 0) {
+        setUserLoves(user.interests.slice(0, 3).join(', '));
+      }
     }
 
     if (matchId) {
@@ -110,6 +114,21 @@ const DatePlanPage = () => {
         setPartnerName(match.name);
         if (match.birthDate) setPartnerBirthDate(match.birthDate);
         if (match.profileImage) setPartnerImage(match.profileImage);
+        // Auto-fill partner preferences from their profile
+        if (match.interests && match.interests.length > 0) {
+          setPartnerLoves(match.interests.slice(0, 3).join(', '));
+        }
+        // Auto-fill things they might not like based on diet/lifestyle
+        const dislikes: string[] = [];
+        if (match.diet === 'vegetarian' || match.diet === 'vegan') {
+          dislikes.push('meat-heavy restaurants');
+        }
+        if (match.smoking === 'never') {
+          dislikes.push('smoky bars');
+        }
+        if (dislikes.length > 0) {
+          setPartnerHates(dislikes.join(', '));
+        }
       }
     }
   }, []);

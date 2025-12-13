@@ -62,16 +62,35 @@ const mockExtractInterests = (platform: 'instagram' | 'linkedin', url: string): 
   return new Promise((resolve) => {
     setTimeout(() => {
       if (platform === 'instagram') {
-        // Extract username from URL to create a mock profile picture
-        const username = url.split('/').filter(Boolean).pop() || 'user';
+        // Extract username from URL - handle various URL formats
+        let username = 'user';
+        try {
+          // Try to extract from URL like https://instagram.com/username or instagram.com/username/
+          const urlParts = url.replace(/\/$/, '').split('/');
+          const lastPart = urlParts[urlParts.length - 1];
+          if (lastPart && lastPart.length > 0 && !lastPart.includes('.')) {
+            username = lastPart;
+          }
+        } catch (e) {
+          console.log('Could not parse Instagram URL, using default');
+        }
+        
+        // Generate a colorful avatar based on the username
+        const colors = ['ff6b6b', '4ecdc4', '45b7d1', 'f9ca24', 'a55eea', 'fd79a8', '00b894', 'e17055'];
+        const colorIndex = username.length % colors.length;
+        const bgColor = colors[colorIndex];
+        
+        const profilePicture = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&size=400&background=${bgColor}&color=ffffff&bold=true&format=png`;
+        
+        console.log('Generated profile picture URL:', profilePicture);
+        
         resolve({
           platform: 'instagram',
           connected: true,
           extractedInterests: ['Travel', 'Photography', 'Food', 'Fitness', 'Art', 'Music', 'Fashion', 'Nature'],
           profileData: {
             name: username,
-            // In real app, this would be the actual Instagram profile picture URL
-            profilePicture: `https://ui-avatars.com/api/?name=${username}&size=400&background=random&color=fff&bold=true`,
+            profilePicture,
           }
         });
       } else {
@@ -175,13 +194,18 @@ const [formData, setFormData] = useState<ProfileFormData>({
     try {
       const profile = await mockExtractInterests('instagram', formData.instagramUrl);
       setSocialProfiles(prev => ({ ...prev, instagram: profile }));
-      updateField('interests', [...new Set([...formData.interests, ...profile.extractedInterests])]);
       
-      // Set profile image from Instagram
+      // Set profile image from Instagram FIRST
       if (profile.profileData?.profilePicture) {
-        updateField('profileImage', profile.profileData.profilePicture);
+        console.log('Setting profile image to:', profile.profileData.profilePicture);
+        setFormData(prev => ({
+          ...prev,
+          profileImage: profile.profileData!.profilePicture!,
+          interests: [...new Set([...prev.interests, ...profile.extractedInterests])]
+        }));
         toast.success(`Profile picture imported! Found ${profile.extractedInterests.length} interests from Instagram!`);
       } else {
+        updateField('interests', [...new Set([...formData.interests, ...profile.extractedInterests])]);
         toast.success(`Found ${profile.extractedInterests.length} interests from Instagram!`);
       }
     } catch (error) {
