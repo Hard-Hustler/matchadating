@@ -4,6 +4,9 @@ import { Sparkles, Calendar, Users, Play, ArrowRight, Instagram, Linkedin, Video
 import { useState, useEffect } from 'react';
 import AuthButton from '@/components/AuthButton';
 import coupleHero from '@/assets/couple-hero.jpg';
+import coupleCoffee from '@/assets/couple-coffee.jpg';
+import couplePark from '@/assets/couple-park.jpg';
+import coupleDinner from '@/assets/couple-dinner.jpg';
 import { motion } from 'framer-motion';
 
 const Index = () => {
@@ -91,7 +94,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Our Approach Section */}
+      {/* Our Approach Section - with image */}
       <section className="py-32 bg-muted/30">
         <div className="container mx-auto px-6 md:px-12">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -123,71 +126,123 @@ const Index = () => {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <div className="grid grid-cols-2 gap-4">
-                <StepCard 
-                  icon={<Instagram className="w-6 h-6" />}
-                  title="Connect"
-                  description="Link your socials"
-                  gradient="from-pink-500 to-rose-600"
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                <img 
+                  src={coupleCoffee} 
+                  alt="Couple enjoying coffee together"
+                  className="w-full h-[400px] object-cover"
                 />
-                <StepCard 
-                  icon={<Video className="w-6 h-6" />}
-                  title="Reveal"
-                  description="Show your true self"
-                  gradient="from-purple-500 to-violet-600"
-                />
-                <StepCard 
-                  icon={<Sparkles className="w-6 h-6" />}
-                  title="Match"
-                  description="AI finds your person"
-                  gradient="from-secondary to-purple-600"
-                />
-                <StepCard 
-                  icon={<Calendar className="w-6 h-6" />}
-                  title="Date"
-                  description="Perfect plan, ready"
-                  gradient="from-rose-500 to-pink-600"
-                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6">
+                  <p className="text-foreground font-semibold text-lg">Real connections start here</p>
+                  <p className="text-muted-foreground text-sm">Coffee dates that lead to forever</p>
+                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* We're Love Scientists Section */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-        <div className="container mx-auto px-6 md:px-12 relative">
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <span className="text-sm font-semibold text-secondary uppercase tracking-wider mb-4 block">The Science of Love</span>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
-              We're <span className="text-gradient-love">love scientists.</span>
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Our AI researchers and behavioral analysts study compatibility so we can make Matcha better for you. We've gotten pretty good at it.
-            </p>
+      {/* How It Works - Visual Steps */}
+      <section className="py-32">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="text-center mb-16">
+            <span className="text-sm font-semibold text-secondary uppercase tracking-wider mb-4 block">How It Works</span>
+            <h2 className="font-display text-4xl md:text-5xl font-bold">Four steps to <span className="text-gradient-love">love</span></h2>
           </div>
-
           <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { icon: <Star className="w-7 h-7" />, type: 'The Dreamer', desc: 'Romantic & imaginative', color: 'from-pink-500/20 to-rose-500/20' },
-              { icon: <Zap className="w-7 h-7" />, type: 'The Passionate', desc: 'Intense & driven', color: 'from-orange-500/20 to-red-500/20' },
-              { icon: <Sparkles className="w-7 h-7" />, type: 'The Free Spirit', desc: 'Adventurous soul', color: 'from-purple-500/20 to-violet-500/20' },
-              { icon: <Heart className="w-7 h-7" />, type: 'The Steady Heart', desc: 'Loyal & dependable', color: 'from-blue-500/20 to-cyan-500/20' },
-            ].map((persona, i) => (
-              <motion.div 
-                key={persona.type} 
-                className={`p-6 rounded-2xl bg-gradient-to-br ${persona.color} border border-border/50 hover:border-primary/30 transition-all hover:scale-105 cursor-pointer text-center`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div className="text-primary mb-4 flex justify-center">{persona.icon}</div>
-                <p className="font-bold text-lg mb-1">{persona.type}</p>
-                <p className="text-sm text-muted-foreground">{persona.desc}</p>
-              </motion.div>
-            ))}
+            <StepCard 
+              icon={<Instagram className="w-6 h-6" />}
+              title="Connect"
+              description="Link your socials"
+              gradient="from-pink-500 to-rose-600"
+            />
+            <StepCard 
+              icon={<Video className="w-6 h-6" />}
+              title="Reveal"
+              description="Show your true self"
+              gradient="from-purple-500 to-violet-600"
+            />
+            <StepCard 
+              icon={<Sparkles className="w-6 h-6" />}
+              title="Match"
+              description="AI finds your person"
+              gradient="from-secondary to-purple-600"
+            />
+            <StepCard 
+              icon={<Calendar className="w-6 h-6" />}
+              title="Date"
+              description="Perfect plan, ready"
+              gradient="from-rose-500 to-pink-600"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Image Gallery Section */}
+      <section className="py-32 relative overflow-hidden bg-muted/30">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <motion.div
+              className="order-2 lg:order-1"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <div className="grid grid-cols-2 gap-4">
+                <motion.div 
+                  className="rounded-2xl overflow-hidden shadow-lg"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <img src={couplePark} alt="Couple in park" className="w-full h-48 object-cover" />
+                </motion.div>
+                <motion.div 
+                  className="rounded-2xl overflow-hidden shadow-lg mt-8"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <img src={coupleDinner} alt="Couple at dinner" className="w-full h-48 object-cover" />
+                </motion.div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="order-1 lg:order-2"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <span className="text-sm font-semibold text-secondary uppercase tracking-wider mb-4 block">The Science of Love</span>
+              <h2 className="font-display text-4xl md:text-5xl font-bold mb-6">
+                We're <span className="text-gradient-love">love scientists.</span>
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Our AI researchers and behavioral analysts study compatibility so we can make Matcha better for you. We've gotten pretty good at it.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { icon: <Star className="w-5 h-5" />, type: 'The Dreamer' },
+                  { icon: <Zap className="w-5 h-5" />, type: 'The Passionate' },
+                  { icon: <Sparkles className="w-5 h-5" />, type: 'The Free Spirit' },
+                  { icon: <Heart className="w-5 h-5" />, type: 'The Steady Heart' },
+                ].map((persona, i) => (
+                  <motion.div 
+                    key={persona.type} 
+                    className="flex items-center gap-3 p-3 rounded-xl bg-card border border-border/50"
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                  >
+                    <div className="text-primary">{persona.icon}</div>
+                    <p className="font-semibold text-sm">{persona.type}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
