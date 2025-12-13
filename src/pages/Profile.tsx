@@ -29,6 +29,7 @@ interface ProfileFormData {
   linkedinUrl: string;
   interests: string[];
   persona?: PersonaResult;
+  useZodiacMatching: boolean;
 }
 
 interface SocialProfile {
@@ -122,6 +123,7 @@ const [formData, setFormData] = useState<ProfileFormData>({
     instagramUrl: '',
     linkedinUrl: '',
     interests: [],
+    useZodiacMatching: false,
   });
 
   // Calculate zodiac sign from birth date
@@ -160,7 +162,7 @@ const [formData, setFormData] = useState<ProfileFormData>({
     updateField('age', age.toString());
   };
 
-  const updateField = (field: keyof ProfileFormData, value: string | string[]) => {
+  const updateField = (field: keyof ProfileFormData, value: string | string[] | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -369,7 +371,28 @@ const [formData, setFormData] = useState<ProfileFormData>({
                     className="bg-background"
                   />
                   {formData.zodiacSign && (
-                    <p className="text-xs text-primary">{formData.zodiacSign} • {formData.age} years old</p>
+                    <div className="space-y-2">
+                      <p className="text-xs text-primary">{formData.zodiacSign} • {formData.age} years old</p>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <div 
+                          className={`relative w-10 h-6 rounded-full transition-colors ${
+                            formData.useZodiacMatching 
+                              ? 'bg-gradient-to-r from-violet-500 to-purple-600' 
+                              : 'bg-muted'
+                          }`}
+                          onClick={() => updateField('useZodiacMatching', !formData.useZodiacMatching)}
+                        >
+                          <div 
+                            className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform ${
+                              formData.useZodiacMatching ? 'translate-x-5' : 'translate-x-1'
+                            }`}
+                          />
+                        </div>
+                        <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">
+                          Use zodiac compatibility in matching ✨
+                        </span>
+                      </label>
+                    </div>
                   )}
                 </div>
               </div>
