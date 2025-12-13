@@ -306,7 +306,20 @@ const Index = () => {
             <Heart className="w-6 h-6 text-primary" fill="currentColor" />
             <span className="font-display text-xl font-bold">Matcha</span>
           </div>
-          <p className="text-muted-foreground">Made with care for the AI Dating Hackathon</p>
+          <p className="text-muted-foreground mb-6">Made with ❤️ for the AI Dating Hackathon</p>
+          
+          <div className="border-t border-border/30 pt-6">
+            <p className="text-xs text-muted-foreground mb-3 uppercase tracking-wider font-medium">Team</p>
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+              <span className="text-sm font-medium text-foreground/80">Hardik Amarwani</span>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="text-sm font-medium text-foreground/80">Drishya Shrestha</span>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="text-sm font-medium text-foreground/80">Mark Hrytchak</span>
+              <span className="text-muted-foreground/40">•</span>
+              <span className="text-sm font-medium text-foreground/80">Rohith Surya</span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
