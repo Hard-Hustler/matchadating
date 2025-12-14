@@ -1,73 +1,107 @@
-# Welcome to Matcha Dating
+# Matcha 🌿  
+**Match energy, not just faces.**
 
-## Project info
+Matcha is a modern, AI-powered dating platform designed to help people form more meaningful connections. Instead of relying only on photos and swipes, Matcha focuses on **persona-based and emotional compatibility**, and goes one step further by helping matched users plan their first date using an AI agent.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
 
-## How can I edit this code?
+Try: https://matchadating.lovable.app/
+---
 
-There are several ways of editing your application.
+## ✨ What Makes Matcha Different
 
-**Use Lovable**
+Traditional dating apps optimize for volume and attention.  
+Matcha is built around **intentional matching**, emotional alignment, and reducing friction after the match.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+- Persona-first onboarding instead of long questionnaires  
+- Optional emotion-aware video analysis (private by design)  
+- Explainable matches with clear reasoning  
+- AI-powered first-date planning to turn matches into real moments  
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## 🧠 Tech Stack
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend
+- **Framework**: [React](https://react.dev/)
+- **Build Tool**: [Vite](https://vitejs.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **UI Components**: [shadcn/ui](https://ui.shadcn.com/)
+- **Routing**: [React Router](https://reactrouter.com/)
+- **Data Fetching**: [TanStack Query](https://tanstack.com/query/latest)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Backend
+- **Platform**: [Supabase](https://supabase.com/)
+- **Edge Functions**: [Deno](https://deno.land/)
 
-Follow these steps:
+### Monorepo
+- **Workspace Management**: [npm Workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+---
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## 🚀 Features
 
-# Step 3: Install the necessary dependencies.
-npm i
+### AI Persona Creation
+Instead of filling out long forms, users create a **persona** through short guided prompts and optional video input.
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+- Captures intent, communication style, emotional preferences, and lifestyle signals  
+- Builds a flexible, evolving representation of the user  
+- Designed to feel natural, fast, and low-effort  
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Emotion & Sentiment Awareness (Optional)
+Users can optionally submit a short video during onboarding.
 
-**Use GitHub Codespaces**
+- Analyzed privately for emotional expression and sentiment  
+- No attractiveness scoring  
+- Never publicly displayed  
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+This helps Matcha better understand tone, energy, and expression patterns.
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+### Intelligent Matching Agent
+Matcha’s matching system goes beyond swipes by combining multiple compatibility signals:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Emotional and communication traits  
+- Shared interests and values  
+- Intent alignment  
+- Optional zodiac-based context for relationship dynamics  
 
-## How can I deploy this project?
+Each match includes a clear explanation of *why* two users were matched.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
+### AI Date Planner Agent
+Once two users match, Matcha activates a **Date Planner AI Agent** to help move the connection offline.
 
-Yes, you can!
+- Suggests first-date ideas tailored to both personas  
+- Considers vibe, energy level, preferences, timing, and budget  
+- Reduces decision fatigue and awkward planning  
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The goal is to help users focus on the experience, not logistics.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+## 🔒 Privacy & Trust
+
+- Video analysis is optional and private  
+- Users control what data is used  
+- No selling of emotional or behavioral insights  
+- Transparent and explainable matching logic  
+
+
+---
+
+## 🛠️ Project Status
+
+This project was built as part of a hackathon and is currently a prototype.  
+Planned improvements include:
+- Calendar and location integrations  
+- Feedback-driven personalization  
+- Expanded safety and trust features  
+
+---
+
+
